@@ -1,0 +1,10 @@
+.*
+*.md
+*.yml
+lib/
+example/
+build/
+node_modules/
+src/
+test/
+gulpfile.js

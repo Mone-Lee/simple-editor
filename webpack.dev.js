@@ -1,1 +1,0 @@
-module.exports = require('webpack-project-builder/lib/webpack.single')

@@ -4,13 +4,13 @@
 
 <script>
 export default {
-    name: 'simple-editor',
+    name: 'light-editor',
     data() {
         return {
 
-        }
+        };
     }
-}
+};
 </script>
 
 <style lang="less" scoped>

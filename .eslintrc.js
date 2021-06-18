@@ -16,7 +16,6 @@ module.exports = {
         "node": true
     },
     "rules": {
-        "semi": 2,
-        "no-irregular-whitespace": 2
+        "semi": 2
     }
 };
