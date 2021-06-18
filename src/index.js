@@ -1,6 +1,8 @@
 import vue from 'vue';
 import Editor from './editor/index.vue';
 
+import './assets/normalize.css';
+
 new vue({
     el: '#lightEditor',
     render: h => h(Editor)
