@@ -10,4 +10,11 @@ if (process.env.NODE_ENV === 'development') {
     });
 }
 
-export default Editor;
+const lightEditor = {
+    Editor,
+    install(Vue) {          // 允许使用Vue.use(...), 进行全局引入
+        Vue.component('lightEditor', Editor);
+    }
+};
+
+export default lightEditor;
