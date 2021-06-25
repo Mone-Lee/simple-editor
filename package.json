@@ -1,6 +1,6 @@
 {
   "name": "vue-light-editor",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "功能简单的富文本编辑器",
   "main": "./dist/lightEditor.min.js",
   "scripts": {

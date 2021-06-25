@@ -1,4 +1,4 @@
-# simpleEditor
+# simpleEditor **(未完成，不要安装！！)**
 功能简单的富文本编辑器
 
 
