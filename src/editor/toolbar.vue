@@ -1,8 +1,8 @@
 <template>
     <div class="simeditor-toolbar">
         <ul class="toolbar-list">
-            <li v-for="tool in tools" :key="tool.title">
-                <span :class="`toolbar-item iconfont toolbar-item-${tool.type}`" :title="tool.title" :icon="tool.icon"></span>
+            <li v-for="tool in tools" :key="tool.title" @click.prevent="setTextStyle(tool)">
+                <span :class="['toolbar-item iconfont', `toolbar-item-${tool.type}`, {'disabled': tool.isDisabled}]" :title="tool.title" :icon="tool.icon"></span>
             </li>
         </ul>
     </div>
@@ -16,17 +16,27 @@ export default {
                 {
                     title: '标题',
                     type: 'title',
+                    isDisabled: false,
                 },
                 {
                     title: '加粗文字',
                     type: 'bold',
+                    isDisabled: false,
                 },
                 {
                     title: '斜体文字',
                     type: 'italic',
+                    isDisabled: false,
                 }
             ]
         };
+    },
+    methods: {
+        setTextStyle(item) {
+            if (item.isDisabled)  return;
+
+            this.$emit('setTextStyle', item.type);
+        }
     }
 };
 </script>
@@ -64,6 +74,11 @@ export default {
     &.toolbar-item-bold {
         font-weight: 600;
         opacity: 0.75;
+    }
+
+    &.disabled {
+        opacity: 0.5 !important;
+        cursor: default !important;
     }
 }
 </style>

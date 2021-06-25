@@ -6,6 +6,7 @@
         contenteditable="true"
         v-html="editContent"
         @input="handleInput"
+        @blur="handleBlur"
         >
     </div>
 </template>
@@ -17,19 +18,21 @@ export default {
             type: String,
             default: ''
         },
+        command: {
+            type: String,
+            default: ''
+        }
     },
     data() {
         return {
-            editContent: '',
+            editContent: '<p><br></p>',
         };
     },
     mounted() {
     },
     methods: {
         handleInput(e) {
-            console.log(e);
-            // this.editContent = '<p>' + e.target.innerText + '</p>';
-            // this.$emit('input', e.target.innerText);
+            this.$emit('input', e.target.innerText);
 
             // setTimeout(() => {
             //     if (window.getSelection) { //ie11 10 9 ff safari
@@ -45,6 +48,22 @@ export default {
             //     }
             // }, 5);
             
+        },
+        handleBlur(e) {
+            // 防止点击工具栏后输入框失去光标，先简单粗暴处理
+            e.target.focus();
+        },
+        // 处理工具栏命令
+        dealWithContent(command) {
+            if (command === 'title') {
+                let range = window.getSelection().getRangeAt(0);
+                console.log(range);
+                let currentElement = range.endContainer.parentElement;
+                let headingEle = document.createElement('h3');
+                headingEle.innerHTML = currentElement.innerHTML;
+                currentElement.parentNode.insertBefore(headingEle, currentElement);
+                currentElement.remove();
+            }
         }
     }
 };
@@ -72,5 +91,13 @@ export default {
     user-select: text;
     // -webkit-user-modify: read-write-plaintext-only;
     // -moz-user-modify: read-write-plaintext-only;
+
+    p {
+        color: #262626;
+        margin: 0;
+        word-wrap: break-word;
+        font-size: 14px;
+        font-weight: 300;
+    }
 }
 </style>

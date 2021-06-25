@@ -2,9 +2,9 @@
     <div class="container">
         <h2 class="title">editor</h2>
         <div class="simeditor">
-            <toolbar></toolbar>
+            <toolbar unselectable="on" @setTextStyle="handleSetTextStyle"></toolbar>
             <!-- 使用contenteditable属性实现文本框效果 -->
-            <editor v-model="content"></editor>
+            <editor ref="editor" v-model="content" :command="command"></editor>
         </div>
         <span>{{content}}</span>
     </div>
@@ -18,12 +18,17 @@ export default {
     components: { toolbar, editor },
     data() {
         return {
+            command: '',    // 样式调整命令
             content: '',
         };
     },
     mounted() {
     },
     methods: {
+        handleSetTextStyle(e) {
+            this.command = e;
+            this.$refs.editor.dealWithContent(this.command);
+        }
     }
 };
 </script>
