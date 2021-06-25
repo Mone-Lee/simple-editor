@@ -1,7 +1,9 @@
 import Vue from 'vue';
 import Editor from './editor/index.vue';
 
-import './assets/normalize.css';
+import './assets/css/normalize.css';
+import './assets/fonts/iconfont.css';
+import "./assets/fonts/iconfont.ttf";
 
 if (process.env.NODE_ENV === 'development') {
     new Vue({
