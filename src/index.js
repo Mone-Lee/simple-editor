@@ -3,7 +3,7 @@ import Editor from './editor/index.vue';
 
 import './assets/css/normalize.css';
 import './assets/fonts/iconfont.css';
-import "./assets/fonts/iconfont.ttf";
+import './assets/fonts/iconfont.ttf';
 
 if (process.env.NODE_ENV === 'development') {
     new Vue({
