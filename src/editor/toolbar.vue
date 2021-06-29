@@ -2,7 +2,7 @@
     <div class="simeditor-toolbar">
         <ul class="toolbar-list">
             <li v-for="tool in tools" :key="tool.title" @click.prevent="setTextStyle(tool)">
-                <span :class="['toolbar-item iconfont', `toolbar-item-${tool.type}`, {'disabled': tool.isDisabled}]" :title="tool.title" :icon="tool.icon"></span>
+                <span :class="['toolbar-item iconfont', `toolbar-item-${tool.type}`, {'disabled': tool.isDisabled}, {'active': tool.isActive}]" :title="tool.title" :icon="tool.icon"></span>
             </li>
         </ul>
     </div>
@@ -10,6 +10,12 @@
 
 <script>
 export default {
+    props: {
+        activeList: {
+            type: Array,
+            default: []
+        }
+    },
     data() {
         return {
             tools: [
@@ -17,16 +23,19 @@ export default {
                     title: '标题',
                     type: 'title',
                     isDisabled: false,
+                    isActive: false,
                 },
                 {
                     title: '加粗文字',
                     type: 'bold',
                     isDisabled: false,
+                    isActive: false,
                 },
                 {
                     title: '斜体文字',
                     type: 'italic',
                     isDisabled: false,
+                    isActive: false,
                 }
             ]
         };
@@ -36,6 +45,13 @@ export default {
             if (item.isDisabled)  return;
 
             this.$emit('setTextStyle', item.type);
+        }
+    },
+    watch: {
+        activeList(arr) {
+            this.tools[0].isActive = arr.includes('h3');
+            this.tools[1].isActive = arr.includes('b');
+            this.tools[2].isActive = arr.includes('i');
         }
     }
 };
@@ -79,6 +95,10 @@ export default {
     &.disabled {
         opacity: 0.5 !important;
         cursor: default !important;
+    }
+
+    &.active {
+        color: #3da8f5;
     }
 }
 </style>

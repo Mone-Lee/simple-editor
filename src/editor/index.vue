@@ -2,9 +2,9 @@
     <div class="container">
         <h2 class="title">editor</h2>
         <div class="simeditor">
-            <toolbar unselectable="on" @setTextStyle="handleSetTextStyle"></toolbar>
+            <toolbar unselectable="on" @setTextStyle="handleSetTextStyle" :activeList="activeList"></toolbar>
             <!-- 使用contenteditable属性实现文本框效果 -->
-            <editor ref="editor" v-model="content" :command="command"></editor>
+            <editor ref="editor" v-model="content" :command="command" @handleFocus="handleEditorFocus"></editor>
         </div>
         <span>{{content}}</span>
     </div>
@@ -19,7 +19,8 @@ export default {
     data() {
         return {
             command: '',    // 样式调整命令
-            content: '',
+            activeList: [],     // 工具栏活跃样式
+            content: ''
         };
     },
     mounted() {
@@ -28,6 +29,10 @@ export default {
         handleSetTextStyle(e) {
             this.command = e;
             this.$refs.editor.dealWithContent(this.command);
+        },
+
+        handleEditorFocus(e) {
+            this.activeList = e;
         }
     }
 };

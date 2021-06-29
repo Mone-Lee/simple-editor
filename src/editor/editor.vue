@@ -7,6 +7,7 @@
         v-html="editContent"
         @input="handleInput"
         @blur="handleBlur"
+        @click="handleFocus"
         >
     </div>
 </template>
@@ -53,6 +54,19 @@ export default {
             // 防止点击工具栏后输入框失去光标，先简单粗暴处理
             e.target.focus();
         },
+        handleFocus() {
+            let selection = window.getSelection();
+            let activeArr = []; // 记录当前选中内容的样式，处理工具栏的active状态
+            if (selection.rangeCount) {
+                let ele = selection.anchorNode.parentElement;
+                while (ele.id !== 'simeditor') {
+                    activeArr.push(ele.nodeName.toLowerCase());
+                    ele = ele.parentElement;
+                }
+            }
+
+            this.$emit('handleFocus', activeArr);
+        },
         // 处理工具栏命令
         dealWithContent(command) {
             if (command === 'title') {
@@ -82,6 +96,8 @@ export default {
                 newRange.setStart(newEle.childNodes[0], offset);
                 newRange.setEnd(newEle.childNodes[0], offset);
                 newSelection.addRange(newRange);
+
+                this.handleFocus();
             }
         }
     }
