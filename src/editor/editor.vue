@@ -56,26 +56,32 @@ export default {
         // 处理工具栏命令
         dealWithContent(command) {
             if (command === 'title') {
-                if (window.getSelection().rangeCount) {
-                    // 找到当前选中的节点，获取当前节点信息
-                    let selection = window.getSelection();
-                    let range = selection.getRangeAt(0);
-                    let offset = range.startOffset;    // 记录光标所处位置
-                    let currentElement = range.endContainer.parentElement;     // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentElement
+                this.translateTitleEle();
+            }
+        },
 
-                    // 使用新节点替换当前节点
-                    let headingEle = document.createElement('h3');
-                    headingEle.innerHTML = currentElement.innerHTML;
-                    currentElement.parentNode.insertBefore(headingEle, currentElement);
-                    currentElement.remove();
+        // p标签与heading标签转换
+        translateTitleEle() {
+            if (window.getSelection().rangeCount) {
+                // 找到当前选中的节点，获取当前节点信息
+                let selection = window.getSelection();
+                let range = selection.getRangeAt(0);
+                let offset = range.startOffset;    // 记录光标所处位置
+                let currentElement = range.endContainer.parentElement;     // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentElement
 
-                    // 将光标定位到新节点上
-                    let newSelection = window.getSelection();
-                    let newRange = newSelection.getRangeAt(0);
-                    newRange.setStart(headingEle.childNodes[0], offset);
-                    newRange.setEnd(headingEle.childNodes[0], offset);
-                    newSelection.addRange(newRange);
-                }
+                // 使用新节点替换当前节点
+                let nodeName = currentElement.nodeName.toLowerCase();
+                let newEle = nodeName === 'p' ? document.createElement('h3') : document.createElement('p');
+                newEle.innerHTML = currentElement.innerHTML;
+                currentElement.parentNode.insertBefore(newEle, currentElement);
+                currentElement.remove();
+
+                // 将光标定位到新节点上
+                let newSelection = window.getSelection();
+                let newRange = newSelection.getRangeAt(0);
+                newRange.setStart(newEle.childNodes[0], offset);
+                newRange.setEnd(newEle.childNodes[0], offset);
+                newSelection.addRange(newRange);
             }
         }
     }
