@@ -8,6 +8,7 @@
         @input="handleInput"
         @blur="handleBlur"
         @click="handleFocus"
+        @keypress="handleKeyPress"
         >
     </div>
 </template>
@@ -50,6 +51,27 @@ export default {
             // }, 5);
             
         },
+        handleKeyPress(e) {
+            let keyCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
+
+            // 回车键，处理换行生成的默认行段元素
+            // 在处理过的内容后键入回车键，生成的下一行的新元素是div，为了统一化，替换为默认的p元素
+            if (keyCode === 13) {
+                let selection = window.getSelection();
+                let range = selection.getRangeAt(0);
+                let currentElement = range.endContainer.parentElement;     // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentElement
+                setTimeout(() => {
+                    let nextEle = currentElement.nextElementSibling;
+
+                    if (nextEle.nodeName.toLowerCase() === 'div') {
+                        let newEle = document.createElement('p');
+                        newEle.innerHTML = nextEle.innerHTML;
+                        nextEle.parentNode.insertBefore(newEle, nextEle);
+                        nextEle.remove();
+                    }
+                }, 10);
+            }
+        },
         handleBlur(e) {
             // 防止点击工具栏后输入框失去光标，先简单粗暴处理
             e.target.focus();
@@ -59,7 +81,7 @@ export default {
             let activeArr = []; // 记录当前选中内容的样式，处理工具栏的active状态
             if (selection.rangeCount) {
                 let ele = selection.anchorNode.parentElement;
-                while (ele.id !== 'simeditor') {
+                while (ele && ele.id !== 'simeditor') {
                     activeArr.push(ele.nodeName.toLowerCase());
                     ele = ele.parentElement;
                 }
