@@ -68,6 +68,15 @@ export default {
                         newEle.innerHTML = nextEle.innerHTML;
                         nextEle.parentNode.insertBefore(newEle, nextEle);
                         nextEle.remove();
+
+                        // 将光标定位到新节点上
+                        let newSelection = window.getSelection();
+                        let newRange = newSelection.getRangeAt(0);
+                        newRange.setStart(newEle.childNodes[0], 0);
+                        newRange.setEnd(newEle.childNodes[0], 0);
+                        newSelection.addRange(newRange);
+
+                        this.handleFocus();
                     }
                 }, 10);
             }
@@ -104,6 +113,11 @@ export default {
                 let range = selection.getRangeAt(0);
                 let offset = range.startOffset;    // 记录光标所处位置
                 let currentElement = range.endContainer.parentElement;     // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentElement
+
+                // 添加对空内容的处理判断
+                if (!currentElement.innerText.trim()) {
+                    return;
+                }
 
                 // 使用新节点替换当前节点
                 let nodeName = currentElement.nodeName.toLowerCase();
