@@ -35,21 +35,6 @@ export default {
     methods: {
         handleInput(e) {
             this.$emit('input', e.target.innerText);
-
-            // setTimeout(() => {
-            //     if (window.getSelection) { //ie11 10 9 ff safari
-            //         e.target.focus(); //解决ff不获取焦点无法定位问题
-            //         let range = window.getSelection(); //创建range
-            //         range.selectAllChildren(e.target); //range 选择e.target下所有子内容
-            //         range.collapseToEnd(); //光标移至最后
-            //     } else if (document.selection) { //ie10 9 8 7 6 5
-            //         let range = document.selection.createRange(); //创建选择对象
-            //         range.moveToElementText(e.target); //range定位到e.target
-            //         range.collapse(false); //光标移至最后
-            //         range.select();
-            //     }
-            // }, 5);
-            
         },
         handleKeyPress(e) {
             let keyCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
@@ -64,19 +49,7 @@ export default {
                     let nextEle = currentElement.nextElementSibling;
 
                     if (nextEle && nextEle.nodeName.toLowerCase() === 'div') {
-                        let newEle = document.createElement('p');
-                        newEle.innerHTML = nextEle.innerHTML;
-                        nextEle.parentNode.insertBefore(newEle, nextEle);
-                        nextEle.remove();
-
-                        // 将光标定位到新节点上
-                        let newSelection = window.getSelection();
-                        let newRange = newSelection.getRangeAt(0);
-                        newRange.setStart(newEle.childNodes[0], 0);
-                        newRange.setEnd(newEle.childNodes[0], 0);
-                        newSelection.addRange(newRange);
-
-                        this.handleFocus();
+                        this.replaceNode(nextEle, 'p');
                     }
                 }, 10);
             }
@@ -131,20 +104,32 @@ export default {
 
                 // 使用新节点替换当前节点
                 let nodeName = currentElement.nodeName.toLowerCase();
-                let newEle = nodeName === 'p' ? document.createElement('h3') : document.createElement('p');
-                newEle.innerHTML = currentElement.innerHTML;
-                currentElement.parentNode.insertBefore(newEle, currentElement);
-                currentElement.remove();
-
-                // 将光标定位到新节点上
-                let newSelection = window.getSelection();
-                let newRange = newSelection.getRangeAt(0);
-                newRange.setStart(newEle.childNodes[0], offset);
-                newRange.setEnd(newEle.childNodes[0], offset);
-                newSelection.addRange(newRange);
-
-                this.handleFocus();
+                let nName = nodeName === 'p' ? 'h3' : 'p';
+                this.replaceNode(currentElement, nName, offset);
             }
+        },
+
+        /**
+         * 使用新节点替换旧节点
+         * 
+         * oldEle: element元素，当前选中的想要被替换的元素
+         * newNodeName: String，新元素的节点名
+         * offset: 光标在当前元素的选中区域的结束位置
+         */
+        replaceNode(oldEle, newNodeName, offset=0) {
+            let newEle = document.createElement(newNodeName);
+            newEle.innerHTML = oldEle.innerHTML;
+            oldEle.parentNode.insertBefore(newEle, oldEle);
+            oldEle.remove();
+
+            // 将光标定位到新节点上
+            let newSelection = window.getSelection();
+            let newRange = newSelection.getRangeAt(0);
+            newRange.setStart(newEle.childNodes[0], offset);
+            newRange.setEnd(newEle.childNodes[0], offset);
+            newSelection.addRange(newRange);
+
+            this.handleFocus();
         }
     }
 };
