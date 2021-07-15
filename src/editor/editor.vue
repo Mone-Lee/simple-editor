@@ -63,7 +63,7 @@ export default {
                 setTimeout(() => {
                     let nextEle = currentElement.nextElementSibling;
 
-                    if (nextEle.nodeName.toLowerCase() === 'div') {
+                    if (nextEle && nextEle.nodeName.toLowerCase() === 'div') {
                         let newEle = document.createElement('p');
                         newEle.innerHTML = nextEle.innerHTML;
                         nextEle.parentNode.insertBefore(newEle, nextEle);
@@ -89,9 +89,18 @@ export default {
             let selection = window.getSelection();
             let activeArr = []; // 记录当前选中内容的样式，处理工具栏的active状态
             if (selection.rangeCount) {
-                let ele = selection.anchorNode.parentElement;
-                while (ele && ele.id !== 'simeditor') {
-                    activeArr.push(ele.nodeName.toLowerCase());
+                let ele = selection.anchorNode;
+                // 情况可能性：
+                // 1. 当前聚焦元素为元素节点的文本内容： ele为文本元素, ele.nodeType == 3 && ele.parentNode.nodeType == 1
+                // 2. 当前聚焦元素为空内容的元素阶段： ele为元素节点，内容为换行符, ele.nodeType == 1 && ele.innerHTML == "<br>"
+                while (ele && ((ele.nodeType === 3 && ele.parentNode.nodeType === 1) || (ele.nodeType === 1 && ele.innerHTML === "<br>"))) {
+                    let nodeName = '';
+                    if (ele.nodeType === 3) {
+                        nodeName = ele.parentNode.nodeName.toLowerCase();
+                    } else {
+                        nodeName = ele.nodeName.toLowerCase();
+                    }
+                    activeArr.push(nodeName);
                     ele = ele.parentElement;
                 }
             }
@@ -115,7 +124,8 @@ export default {
                 let currentElement = range.endContainer.parentElement;     // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentElement
 
                 // 添加对空内容的处理判断
-                if (!currentElement.innerText.trim()) {
+                if (currentElement.id === 'simeditor' || currentElement.innerHTML === "<br>") {
+                    this.handleFocus();
                     return;
                 }
 
