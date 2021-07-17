@@ -1,6 +1,5 @@
 <template>
     <div class="simeditor-body">
-        <div class="simeditor-placeholder" v-if="!pureContent">添加内容</div>
         <!-- 使用contenteditable属性实现文本框效果 -->
         <div id="simeditor"
             class="simeditor-content"
@@ -26,8 +25,6 @@ export default {
     },
     data() {
         return {
-            isShowPlaceholder: true,
-            pureContent: '',
             editContent: '<p><br></p>',
         };
     },
@@ -35,7 +32,6 @@ export default {
     },
     methods: {
         handleInput(e) {
-            this.pureContent = e.target.innerText;
             this.$emit('input', e.target.innerText);
         },
         /**
@@ -160,20 +156,13 @@ export default {
 
 <style lang="less"> // 注意不要添加scoped属性，否则动态添加的html内容的样式不生效
 .simeditor-body {
-    position: relative;
-}
-
-.simeditor-placeholder {
-    font-size: 14px;
-    color: #bfbfbf;
-    line-height: 24px;
-    padding: 6px 10px;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-.simeditor-content {
+    &:empty:before {
+        content: attr(placeholder);
+        font-size: 14px;
+        color: #bfbfbf;
+        line-height: 24px;
+        padding: 6px 4px;
+    }
     outline: 0;
     font-size: 14px;
     color: #262626;
@@ -186,7 +175,6 @@ export default {
     user-select: text;
     // -webkit-user-modify: read-write-plaintext-only;
     // -moz-user-modify: read-write-plaintext-only;
-
     p {
         color: #262626;
         margin: 0;
