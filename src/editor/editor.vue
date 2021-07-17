@@ -1,25 +1,24 @@
 <template>
-    <!-- 使用contenteditable属性实现文本框效果 -->
-    <div id="simeditor"
-        class="simeditor-body"
-        placeholder="添加内容"
-        contenteditable="true"
-        v-html="editContent"
-        @input="handleInput"
-        @blur="handleBlur"
-        @click="handleFocus"
-        @keypress="handleKeyPress"
-        >
+    <div class="simeditor-body">
+        <div class="simeditor-placeholder" v-if="!pureContent">添加内容</div>
+        <!-- 使用contenteditable属性实现文本框效果 -->
+        <div id="simeditor"
+            class="simeditor-content"
+            placeholder="添加内容"
+            contenteditable="true"
+            v-html="editContent"
+            @input="handleInput"
+            @blur="handleBlur"
+            @click="handleFocus"
+            @keypress="handleKeyPress"
+            >
+        </div>
     </div>
 </template>
 
 <script>
 export default {
     props: {
-        content: {
-            type: String,
-            default: ''
-        },
         command: {
             type: String,
             default: ''
@@ -27,6 +26,8 @@ export default {
     },
     data() {
         return {
+            isShowPlaceholder: true,
+            pureContent: '',
             editContent: '<p><br></p>',
         };
     },
@@ -34,8 +35,18 @@ export default {
     },
     methods: {
         handleInput(e) {
+            this.pureContent = e.target.innerText;
             this.$emit('input', e.target.innerText);
         },
+        /**
+         * 防止点击工具栏后输入框失去光标，先简单粗暴处理
+         */
+        handleBlur(e) {
+            e.target.focus();
+        },
+        /**
+         * 处理回车换行的输入，规范行尾回车后默认生成 <p><br></p> 元素
+         */
         handleKeyPress(e) {
             let keyCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
 
@@ -54,10 +65,9 @@ export default {
                 }, 10);
             }
         },
-        handleBlur(e) {
-            // 防止点击工具栏后输入框失去光标，先简单粗暴处理
-            e.target.focus();
-        },
+        /**
+         * 编辑器内容被focus时的处理，判断当前focus元素使用了的工具
+         */
         handleFocus() {
             let selection = window.getSelection();
             let activeArr = []; // 记录当前选中内容的样式，处理工具栏的active状态
@@ -80,14 +90,20 @@ export default {
 
             this.$emit('handleFocus', activeArr);
         },
-        // 处理工具栏命令
+        /**
+         * 处理工具栏操作命令，分发操作
+         */
         dealWithContent(command) {
             if (command === 'title') {
                 this.translateTitleEle();
+            } else if (command === 'bold') {
+                this.translateBoldEle();
             }
         },
 
-        // p标签与heading标签转换
+        /**
+         * 处理工具栏标题heading操作命令, p元素与h3元素相互切换
+         */
         translateTitleEle() {
             if (window.getSelection().rangeCount) {
                 // 找到当前选中的节点，获取当前节点信息
@@ -107,6 +123,13 @@ export default {
                 let nName = nodeName === 'p' ? 'h3' : 'p';
                 this.replaceNode(currentElement, nName, offset);
             }
+        },
+
+        /**
+         * 处理工具栏加粗bold操作命令
+         */
+        translateBoldEle() {
+            console.log('bold');
         },
 
         /**
@@ -137,14 +160,20 @@ export default {
 
 <style lang="less"> // 注意不要添加scoped属性，否则动态添加的html内容的样式不生效
 .simeditor-body {
-    &:empty:before {
-        content: attr(placeholder);
-        font-size: 14px;
-        color: #bfbfbf;
-        line-height: 24px;
-        padding: 6px 4px;
-    }
+    position: relative;
+}
 
+.simeditor-placeholder {
+    font-size: 14px;
+    color: #bfbfbf;
+    line-height: 24px;
+    padding: 6px 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.simeditor-content {
     outline: 0;
     font-size: 14px;
     color: #262626;

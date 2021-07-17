@@ -25,12 +25,12 @@ export default {
                     isDisabled: false,
                     isActive: false,
                 },
-                // {
-                //     title: '加粗文字',
-                //     type: 'bold',
-                //     isDisabled: false,
-                //     isActive: false,
-                // },
+                {
+                    title: '加粗文字',
+                    type: 'bold',
+                    isDisabled: false,
+                    isActive: false,
+                },
                 // {
                 //     title: '斜体文字',
                 //     type: 'italic',
@@ -50,7 +50,7 @@ export default {
     watch: {
         activeList(arr) {
             this.tools[0].isActive = arr.includes('h3');
-            // this.tools[1].isActive = arr.includes('b');
+            this.tools[1].isActive = arr.includes('b');
             // this.tools[2].isActive = arr.includes('i');
         }
     }
