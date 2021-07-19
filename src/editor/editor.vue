@@ -71,10 +71,9 @@ export default {
             let activeArr = []; // 记录当前选中内容的样式，处理工具栏的active状态
             if (selection.rangeCount) {
                 let ele = selection.anchorNode;
-                // 情况可能性：
-                // 1. 当前聚焦元素为元素节点的文本内容： ele为文本元素, ele.nodeType == 3 && ele.parentNode.nodeType == 1
-                // 2. 当前聚焦元素为空内容的元素阶段： ele为元素节点，内容为换行符, ele.nodeType == 1 && ele.innerHTML == "<br>"
-                while (ele && ((ele.nodeType === 3 && ele.parentNode.nodeType === 1) || (ele.nodeType === 1 && ele.innerHTML === "<br>"))) {
+                // 当前聚焦元素为元素节点的文本内容： ele为文本元素, ele.nodeType == 3
+                // 当前聚焦元素为节点元素，需要循环判断到class="simeditor-content"元素终止
+                while (ele && (ele.nodeType === 3 || (ele.nodeType === 1 && ele.nodeName.toLowerCase() !== 'div'))) {
                     let nodeName = '';
                     if (ele.nodeType === 3) {
                         nodeName = ele.parentNode.nodeName.toLowerCase();
@@ -85,9 +84,32 @@ export default {
                     ele = ele.parentElement;
                 }
             }
-
             this.$emit('handleFocus', activeArr);
         },
+
+        /**
+         * 使用新节点替换旧节点
+         * 
+         * oldEle: element元素，当前选中的想要被替换的元素
+         * newNodeName: String，新元素的节点名
+         * offset: 光标在当前元素的选中区域的结束位置
+         */
+        replaceNode(oldEle, newNodeName, offset=0) {
+            let newEle = document.createElement(newNodeName);
+            newEle.innerHTML = oldEle.innerHTML;
+            oldEle.parentNode.insertBefore(newEle, oldEle);
+            oldEle.remove();
+
+            // 将光标定位到新节点上
+            let newSelection = window.getSelection();
+            let newRange = newSelection.getRangeAt(0);
+            newRange.setStart(newEle.childNodes[0], offset);
+            newRange.setEnd(newEle.childNodes[0], offset);
+            newSelection.addRange(newRange);
+
+            this.handleFocus();
+        },
+
         /**
          * 处理工具栏操作命令，分发操作
          */
@@ -127,30 +149,7 @@ export default {
          * 处理工具栏加粗bold操作命令
          */
         translateBoldEle() {
-            console.log('bold');
-        },
-
-        /**
-         * 使用新节点替换旧节点
-         * 
-         * oldEle: element元素，当前选中的想要被替换的元素
-         * newNodeName: String，新元素的节点名
-         * offset: 光标在当前元素的选中区域的结束位置
-         */
-        replaceNode(oldEle, newNodeName, offset=0) {
-            let newEle = document.createElement(newNodeName);
-            newEle.innerHTML = oldEle.innerHTML;
-            oldEle.parentNode.insertBefore(newEle, oldEle);
-            oldEle.remove();
-
-            // 将光标定位到新节点上
-            let newSelection = window.getSelection();
-            let newRange = newSelection.getRangeAt(0);
-            newRange.setStart(newEle.childNodes[0], offset);
-            newRange.setEnd(newEle.childNodes[0], offset);
-            newSelection.addRange(newRange);
-
-            this.handleFocus();
+            document.execCommand('bold', false, null);
         }
     }
 };
@@ -191,6 +190,18 @@ export default {
         word-wrap: break-word;
         font-size: 14px;
         font-weight: 300;
+    }
+
+    h3 {
+        font-size: 20px;
+        font-weight: 500;
+        color: #262626;
+        line-height: 1;
+        margin-bottom: 10px;
+    }
+
+    b, strong {
+        font-weight: 700;
     }
 }
 </style>
