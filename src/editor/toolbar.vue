@@ -2,7 +2,7 @@
     <div class="simeditor-toolbar">
         <ul class="toolbar-list">
             <li v-for="tool in tools" :key="tool.title" @click.prevent="setTextStyle(tool)">
-                <span :class="['toolbar-item iconfont', `toolbar-item-${tool.type}`, {'disabled': tool.isDisabled}, {'active': tool.isActive}]" :title="tool.title" :icon="tool.icon"></span>
+                <span :class="['toolbar-item iconfont', `toolbar-item-${tool.type}`, {'disabled': !tool.isWork || tool.isDisabled}, {'active': tool.isActive}]" :title="tool.title" :icon="tool.icon"></span>
             </li>
         </ul>
     </div>
@@ -24,12 +24,14 @@ export default {
                     type: 'title',
                     isDisabled: false,
                     isActive: false,
+                    isWork: true
                 },
                 {
                     title: '加粗文字',
                     type: 'bold',
                     isDisabled: false,
                     isActive: false,
+                    isWork: true
                 },
                 // {
                 //     title: '斜体文字',
@@ -40,17 +42,24 @@ export default {
             ]
         };
     },
+    mounted() {
+        this.tools.map((item, i) => {
+            if (i > 0 && !document.queryCommandState) {
+                item.isWork = false;
+            }
+        });
+    },
     methods: {
         setTextStyle(item) {
-            if (item.isDisabled)  return;
+            if (item.isDisabled || !item.isWork)  return;
 
             this.$emit('setTextStyle', item.type);
-        }
+        },
     },
     watch: {
         activeList(arr) {
             this.tools[0].isActive = arr.includes('h3');
-            this.tools[1].isActive = arr.includes('b');
+            this.tools[1].isActive = arr.includes('b') || arr.includes('strong');   // IE浏览器使用<strong>
             // this.tools[2].isActive = arr.includes('i');
         }
     }
