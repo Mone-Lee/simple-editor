@@ -87,6 +87,41 @@ export default {
             this.$emit('handleFocus', activeArr);
         },
 
+        checkTextElementEqual(ele1, ele2) {
+            let isEqual = true;
+            // 判断不等条件： textContent不相等；previousSibling元素不相等；nextSibling元素不相等
+            // 在当前项目中，这里进行比较的元素都是文本元素，所以使用textContent获取元素内容
+            if (ele1.textContent !== ele2.textContent || (ele1.previousSibling && !ele2.previousSibling) || (!ele1.previousSibling && ele2.previousSibling) || (ele1.previousSibling && ele2.previousSibling && ele1.previousSibling.innerText !== ele1.previousSibling.innerText) || (ele1.nextSibling && !ele2.nextSibling) || (!ele1.nextSibling && ele2.nextSibling) || (ele1.nextSibling && ele2.nextSibling && ele1.nextSibling.innerText !== ele1.nextSibling.innerText)) {
+                isEqual = false;
+            }
+            return isEqual;
+        },
+
+        /**
+         * 在进行元素标签替换后，在当前元素的子元素中查找，恢复获得焦点的元素
+         * 
+         * nodeList: 当前替换标签元素的子元素
+         * targetNode: 替换标签前元素中获得焦点的子元素
+         */
+        findFocusElement(nodeList, targetNode) {
+            if (nodeList.length === 1 && this.checkTextElementEqual(nodeList[0], targetNode)) {
+                return nodeList[0];
+            } else {
+                for (let i=0; i<nodeList.length; i++) {
+                    let node = nodeList[i];
+                    if (node.childNodes.length === 0) {
+                        if (this.checkTextElementEqual(node, targetNode)) {
+                            return node;
+                        }
+                    } else {
+                        let target = this.findFocusElement(node.childNodes, targetNode);
+                        return target;
+                    }
+                }
+            }
+            return null;
+        },
+
         /**
          * 使用新节点替换旧节点
          * 
@@ -94,20 +129,25 @@ export default {
          * newNodeName: String，新元素的节点名
          * offset: 光标在当前元素的选中区域的结束位置
          */
-        replaceNode(oldEle, newNodeName, offset=0) {
+        replaceNode(oldEle, newNodeName, targetNode, offset=0) {
             let newEle = document.createElement(newNodeName);
             newEle.innerHTML = oldEle.innerHTML;
-            oldEle.parentNode.insertBefore(newEle, oldEle);
-            oldEle.remove();
 
             // 将光标定位到新节点上
             let newSelection = window.getSelection();
             let newRange = newSelection.getRangeAt(0);
-            newRange.setStart(newEle.childNodes[0], offset);
-            newRange.setEnd(newEle.childNodes[0], offset);
-            newSelection.addRange(newRange);
 
-            this.handleFocus();
+            let target = this.findFocusElement(newEle.childNodes, targetNode);
+            if (target) {
+                oldEle.parentNode.insertBefore(newEle, oldEle);
+                oldEle.remove();
+
+                newRange.setStart(target, offset);
+                newRange.setEnd(target, offset);
+                newSelection.addRange(newRange);
+
+                this.handleFocus();
+            }
         },
 
         /**
@@ -130,7 +170,11 @@ export default {
                 let selection = window.getSelection();
                 let range = selection.getRangeAt(0);
                 let offset = range.startOffset;    // 记录光标所处位置
-                let currentElement = range.endContainer.parentElement;     // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentElement
+                let targetNode = range.endContainer;
+                let currentElement = range.endContainer.parentElement;     // range.endContainer选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentElement
+                while (currentElement && currentElement.parentElement.nodeName.toLowerCase() !== 'div') {
+                    currentElement = currentElement.parentElement;
+                }
 
                 // 添加对空内容的处理判断
                 if (currentElement.id === 'simeditor' || currentElement.innerHTML === "<br>") {
@@ -141,7 +185,7 @@ export default {
                 // 使用新节点替换当前节点
                 let nodeName = currentElement.nodeName.toLowerCase();
                 let nName = nodeName === 'p' ? 'h3' : 'p';
-                this.replaceNode(currentElement, nName, offset);
+                this.replaceNode(currentElement, nName, targetNode, offset);
             }
         },
 
