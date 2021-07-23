@@ -64,7 +64,7 @@ export default {
             }
         },
         /**
-         * 编辑器内容被focus时的处理，判断当前focus元素使用了的工具
+         * 编辑器内容被focus时的处理，判断当前focus元素使用了的工具类型，控制工具栏样式
          */
         handleFocus() {
             let selection = window.getSelection();
@@ -194,6 +194,7 @@ export default {
          */
         translateBoldEle() {
             document.execCommand('bold', false, null);
+            this.handleFocus();
         }
     }
 };
