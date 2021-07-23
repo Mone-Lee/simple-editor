@@ -33,12 +33,13 @@ export default {
                     isActive: false,
                     isWork: true
                 },
-                // {
-                //     title: '斜体文字',
-                //     type: 'italic',
-                //     isDisabled: false,
-                //     isActive: false,
-                // }
+                {
+                    title: '斜体文字',
+                    type: 'italic',
+                    isDisabled: false,
+                    isActive: false,
+                    isWork: true
+                }
             ]
         };
     },
@@ -60,7 +61,7 @@ export default {
         activeList(arr) {
             this.tools[0].isActive = arr.includes('h3');
             this.tools[1].isActive = arr.includes('b') || arr.includes('strong');   // IE浏览器使用<strong>
-            // this.tools[2].isActive = arr.includes('i');
+            this.tools[2].isActive = arr.includes('i') || arr.includes('em');   // IE浏览器使用<em>
         }
     }
 };
@@ -99,6 +100,10 @@ export default {
     &.toolbar-item-bold {
         font-weight: 600;
         opacity: 0.75;
+    }
+
+    &.toolbar-item-italic {
+        font-size: 14px;
     }
 
     &.disabled {

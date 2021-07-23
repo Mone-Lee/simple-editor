@@ -158,6 +158,8 @@ export default {
                 this.translateTitleEle();
             } else if (command === 'bold') {
                 this.translateBoldEle();
+            } else if (command === 'italic') {
+                this.translateItalicEle();
             }
         },
 
@@ -194,6 +196,14 @@ export default {
          */
         translateBoldEle() {
             document.execCommand('bold', false, null);
+            this.handleFocus();
+        },
+
+        /**
+         * 处理工具栏斜体italic操作命令
+         */
+        translateItalicEle() {
+            document.execCommand('italic', false, null);
             this.handleFocus();
         }
     }
