@@ -34,6 +34,14 @@ export default {
         handleEditorFocus(e) {
             this.activeList = e;
         }
+    },
+
+    watch: {
+        content(val) {
+            if (!val.trim()) {
+                this.activeList = [];
+            }
+        }
     }
 };
 </script>
