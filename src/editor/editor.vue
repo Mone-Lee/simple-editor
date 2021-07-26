@@ -87,12 +87,32 @@ export default {
             this.$emit('handleFocus', activeArr);
         },
 
-        checkTextElementEqual(ele1, ele2) {
+        /**
+         * 简单比较两个DOM元素是否相等
+         * ele1: 比较元素
+         * ele2: 比较元素
+         * onlyChild: 是否该元素只有一个子元素， 如果只有一个子元素，则简单对比两个元素的文本元素是否相等
+         */
+        checkTextElementEqual(ele1, ele2, onlyChild=false) {
             let isEqual = true;
-            // 判断不等条件： textContent不相等；previousSibling元素不相等；nextSibling元素不相等
-            // 在当前项目中，这里进行比较的元素都是文本元素，所以使用textContent获取元素内容
-            if (ele1.textContent !== ele2.textContent || (ele1.previousSibling && !ele2.previousSibling) || (!ele1.previousSibling && ele2.previousSibling) || (ele1.previousSibling && ele2.previousSibling && ele1.previousSibling.innerText !== ele1.previousSibling.innerText) || (ele1.nextSibling && !ele2.nextSibling) || (!ele1.nextSibling && ele2.nextSibling) || (ele1.nextSibling && ele2.nextSibling && ele1.nextSibling.innerText !== ele1.nextSibling.innerText)) {
-                isEqual = false;
+            // 判断不等条件： wholeText不相等；previousSibling元素不相等；nextSibling元素不相等
+            // 在当前项目中，这里进行比较的元素都是文本元素，所以使用wholeText获取元素内容
+            if (onlyChild) {
+                // 使用wholeText而不是textContent是因为在对一个元素进行加粗、斜体操作并复原后，该元素的文本元素会被双引号分为多个
+                // 例：
+                // <p>
+                //    "dmskmk"
+                //    "smd"
+                //    "kasmdka"
+                //</p>
+                // 使用textContent只能获取其中一个文本元素内容，此时需要使用wholeText
+                if (ele1.wholeText !== ele2.wholeText) {
+                    isEqual = false;
+                }
+            } else {
+                if (!onlyChild && ele1.wholeText !== ele2.wholeText || (ele1.previousSibling && !ele2.previousSibling) || (!ele1.previousSibling && ele2.previousSibling) || (ele1.previousSibling && ele2.previousSibling && ele1.previousSibling.innerText !== ele1.previousSibling.innerText) || (ele1.nextSibling && !ele2.nextSibling) || (!ele1.nextSibling && ele2.nextSibling) || (ele1.nextSibling && ele2.nextSibling && ele1.nextSibling.innerText !== ele1.nextSibling.innerText)) {
+                    isEqual = false;
+                }
             }
             return isEqual;
         },
@@ -104,8 +124,10 @@ export default {
          * targetNode: 替换标签前元素中获得焦点的子元素
          */
         findFocusElement(nodeList, targetNode) {
-            if (nodeList.length === 1 && this.checkTextElementEqual(nodeList[0], targetNode)) {
-                return nodeList[0];
+            if (nodeList.length === 1) {
+                if (this.checkTextElementEqual(nodeList[0], targetNode, true)) {
+                    return nodeList[0];
+                }
             } else {
                 for (let i=0; i<nodeList.length; i++) {
                     let node = nodeList[i];
@@ -171,9 +193,9 @@ export default {
                 // 找到当前选中的节点，获取当前节点信息
                 let selection = window.getSelection();
                 let range = selection.getRangeAt(0);
-                let offset = range.startOffset;    // 记录光标所处位置
-                let targetNode = range.endContainer;
-                let currentElement = range.endContainer.parentElement;     // range.endContainer选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentElement
+                let offset = range.endOffset;    // 记录光标所处位置
+                let targetNode = range.commonAncestorContainer;
+                let currentElement = range.commonAncestorContainer.parentElement;     // range.commonAncestorContainer选中的其实是文本元素，例：<p>hello</p>中的"hello", 如果要针对整个节点进行操作，就需要找到parentElement
                 while (currentElement && currentElement.parentElement.nodeName.toLowerCase() !== 'div') {
                     currentElement = currentElement.parentElement;
                 }
