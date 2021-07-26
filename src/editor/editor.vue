@@ -5,12 +5,12 @@
         <div id="simeditor"
             class="simeditor-content"
             contenteditable="true"
-            v-html="editContent"
             @input="handleInput"
             @blur="handleBlur"
             @click="handleFocus"
             @keypress="handleKeyPress"
             >
+            <p><br></p>
         </div>
     </div>
 </template>
@@ -26,15 +26,18 @@ export default {
     data() {
         return {
             pureContent: '',
-            editContent: '<p><br></p>',
         };
     },
     mounted() {
     },
     methods: {
         handleInput(e) {
-            this.pureContent = e.target.innerText;
-            this.$emit('input', e.target.innerText);
+            if (!e.target.innerHTML) {
+               e.target.innerHTML = '<p><br></p>';
+            } else {
+                this.pureContent = e.target.innerText;
+                this.$emit('input', e.target.innerText);
+            }
         },
         /**
          * 防止点击工具栏后输入框失去光标，先简单粗暴处理
@@ -47,7 +50,6 @@ export default {
          */
         handleKeyPress(e) {
             let keyCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
-
             // 回车键，处理换行生成的默认行段元素
             // 在处理过的内容后键入回车键，生成的下一行的新元素是div，为了统一化，替换为默认的p元素
             if (keyCode === 13) {
@@ -245,10 +247,12 @@ export default {
                     }
                 }
 
+                // 插入hr元素
                 let hrEle = document.createElement('hr');
                 let parentEle = currentElement.parentNode;
                 parentEle.appendChild(hrEle);
 
+                // 在hr元素后添加新行
                 let newEle = document.createElement('p');
                 let brEle = document.createElement('br');
                 newEle.appendChild(brEle);
