@@ -1,5 +1,5 @@
 # simpleEditor **(未完成，不要安装！！)**
-功能简单的富文本编辑器
+功能简单的富文本编辑器, 支持在vue项目中作为插件使用。
 
 
 #### 支持在项目中全局引入
@@ -17,6 +17,7 @@ Vue.use(lightEditor)
 1. 标题heading (当前仅支持固定大小h3)
 2. 加粗bold
 3. 斜体italic
+4. 分隔符hr
 
 #### 实现原理
 使用`contenteditable="true"`属性使div元素实现可编辑。由于`input`元素和`textarea`元素对html标签的显示不太友好，所以不使用这种方式实现。  
