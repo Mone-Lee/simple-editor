@@ -5,7 +5,7 @@
   "main": "./dist/lightEditor.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "NODE_ENV=development webpack-dev-server --config lib/webpack.dev.js --open",
+    "dev": "NODE_ENV=development webpack-dev-server --config lib/webpack.dev.js",
     "build": "NODE_ENV=production webpack --config lib/webpack.prod.js"
   },
   "repository": {
