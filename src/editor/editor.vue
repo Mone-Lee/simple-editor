@@ -53,7 +53,7 @@ export default {
             if (keyCode === 13) {
                 let selection = window.getSelection();
                 let range = selection.getRangeAt(0);
-                let currentElement = range.endContainer.parentElement;     // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentElement
+                let currentElement = range.endContainer.parentNode;     // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentNode
                 setTimeout(() => {
                     let nextEle = currentElement.nextElementSibling;
 
@@ -81,7 +81,7 @@ export default {
                         nodeName = ele.nodeName.toLowerCase();
                     }
                     activeArr.push(nodeName);
-                    ele = ele.parentElement;
+                    ele = ele.parentNode;
                 }
             }
             this.$emit('handleFocus', activeArr);
@@ -182,6 +182,8 @@ export default {
                 this.translateBoldEle();
             } else if (command === 'italic') {
                 this.translateItalicEle();
+            } else if (command === 'hr') {
+                this.addHrEle();
             }
         },
 
@@ -195,9 +197,9 @@ export default {
                 let range = selection.getRangeAt(0);
                 let offset = range.endOffset;    // 记录光标所处位置
                 let targetNode = range.commonAncestorContainer;
-                let currentElement = range.commonAncestorContainer.parentElement;     // range.commonAncestorContainer选中的其实是文本元素，例：<p>hello</p>中的"hello", 如果要针对整个节点进行操作，就需要找到parentElement
-                while (currentElement && currentElement.parentElement.nodeName.toLowerCase() !== 'div') {
-                    currentElement = currentElement.parentElement;
+                let currentElement = range.commonAncestorContainer.parentNode;     // range.commonAncestorContainer选中的其实是文本元素，例：<p>hello</p>中的"hello", 如果要针对整个节点进行操作，就需要找到parentNode
+                while (currentElement && currentElement.parentNode.nodeName.toLowerCase() !== 'div') {
+                    currentElement = currentElement.parentNode;
                 }
 
                 // 添加对空内容的处理判断
@@ -227,6 +229,36 @@ export default {
         translateItalicEle() {
             document.execCommand('italic', false, null);
             this.handleFocus();
+        },
+
+        /**
+         * 处理工具栏分隔线操作命令
+         */
+        addHrEle() {
+            if (window.getSelection().rangeCount) {
+                let selection = window.getSelection();
+                let range = selection.getRangeAt(0);
+                let currentElement = range.commonAncestorContainer;
+                if (currentElement.nodeType !== 1) {
+                    while (currentElement && currentElement.parentNode.nodeName.toLowerCase() !== 'div') {
+                        currentElement = currentElement.parentNode;
+                    }
+                }
+
+                let hrEle = document.createElement('hr');
+                let parentEle = currentElement.parentNode;
+                parentEle.appendChild(hrEle);
+
+                let newEle = document.createElement('p');
+                let brEle = document.createElement('br');
+                newEle.appendChild(brEle);
+                parentEle.appendChild(newEle);
+
+                // 将光标定位到新节点上
+                range.setStart(newEle, 0);
+                range.setEnd(newEle, 0);
+                selection.addRange(range);
+            }
         }
     }
 };
@@ -279,6 +311,15 @@ export default {
 
     b, strong {
         font-weight: 700;
+    }
+
+    hr {
+        display: block;
+        height: 0px;
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 15px 0;
+        padding: 0;
     }
 }
 </style>
