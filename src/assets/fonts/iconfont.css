@@ -25,3 +25,6 @@
   content: "\eaef";
 }
 
+.toolbar-item-hr:before {
+  content: "\ec7f";
+}

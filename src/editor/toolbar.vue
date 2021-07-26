@@ -39,6 +39,13 @@ export default {
                     isDisabled: false,
                     isActive: false,
                     isWork: true
+                },
+                {
+                    title: '分割线',
+                    type: 'hr',
+                    isDisabled: false,
+                    isActive: false,
+                    isWork: true
                 }
             ]
         };
