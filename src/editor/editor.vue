@@ -13,7 +13,6 @@
             <p><br></p>
         </div>
 
-        <div id="preview"></div>
         <input type="file" accept="image/*" name="file" id="file" >
     </div>
 </template>
@@ -38,7 +37,7 @@ export default {
     methods: {
         handleInput(e) {
             if (!e.target.innerHTML) {
-               e.target.innerHTML = '<p><br></p>';
+                e.target.innerHTML = '<p><br></p>';
             } else {
                 this.pureContent = e.target.innerText;
                 this.$emit('input', e.target.innerText);
@@ -249,15 +248,15 @@ export default {
         },
 
         uploadImage() {
-            console.log('uploadImage');
             let uploader = document.getElementById('file');
-            let preview = document.getElementById('preview');
             let files = uploader.files;
 
             let image = document.createElement('img');
             image.src = URL.createObjectURL(files[0]);
-            preview.appendChild(image);
 
+            let selection = window.getSelection();
+            let range = selection.getRangeAt(0);
+            range.insertNode(image);
             uploader.value = '';    // 注意上传完需要清空历史数据，否则change事件无法被正常触发
         },
 
