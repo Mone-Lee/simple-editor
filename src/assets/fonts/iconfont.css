@@ -25,6 +25,10 @@
   content: "\eaef";
 }
 
+.toolbar-item-upload:before {
+  content: "\e64a";
+}
+
 .toolbar-item-hr:before {
   content: "\ec7f";
 }

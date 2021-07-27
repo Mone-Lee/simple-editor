@@ -184,6 +184,8 @@ export default {
                 this.translateBoldEle();
             } else if (command === 'italic') {
                 this.translateItalicEle();
+            } else if (command === 'upload') {
+                this.addImgEle();
             } else if (command === 'hr') {
                 this.addHrEle();
             }
@@ -231,6 +233,13 @@ export default {
         translateItalicEle() {
             document.execCommand('italic', false, null);
             this.handleFocus();
+        },
+
+        /**
+         * 处理工具栏插入图片操作命令
+         */
+        addImgEle() {
+            console.log('插入图片');
         },
 
         /**
