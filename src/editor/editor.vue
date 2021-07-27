@@ -12,6 +12,9 @@
             >
             <p><br></p>
         </div>
+
+        <div id="preview"></div>
+        <input type="file" accept="image/*" name="file" id="file" >
     </div>
 </template>
 
@@ -29,6 +32,8 @@ export default {
         };
     },
     mounted() {
+        let uploader = document.getElementById('file');
+        uploader.addEventListener('change', this.uploadImage, false);
     },
     methods: {
         handleInput(e) {
@@ -239,7 +244,21 @@ export default {
          * 处理工具栏插入图片操作命令
          */
         addImgEle() {
-            console.log('插入图片');
+            let uploader = document.getElementById('file');
+            uploader.click();
+        },
+
+        uploadImage() {
+            console.log('uploadImage');
+            let uploader = document.getElementById('file');
+            let preview = document.getElementById('preview');
+            let files = uploader.files;
+
+            let image = document.createElement('img');
+            image.src = URL.createObjectURL(files[0]);
+            preview.appendChild(image);
+
+            uploader.value = '';    // 注意上传完需要清空历史数据，否则change事件无法被正常触发
         },
 
         /**
@@ -334,5 +353,9 @@ export default {
         margin: 15px 0;
         padding: 0;
     }
+}
+
+input[type=file] {
+    opacity: 0;
 }
 </style>
