@@ -17,7 +17,8 @@ Vue.use(lightEditor)
 1. 标题heading (当前仅支持固定大小h3)
 2. 加粗bold
 3. 斜体italic
-4. 分隔符hr
+4. 插入图片
+5. 分隔符hr
 
 #### 实现原理
 使用`contenteditable="true"`属性使div元素实现可编辑。由于`input`元素和`textarea`元素对html标签的显示不太友好，所以不使用这种方式实现。  
@@ -29,4 +30,5 @@ Vue.use(lightEditor)
 [【webpack】font-awesome加载不到woff字体文件](https://www.jianshu.com/p/964cdd5eb0a0)  
 [富文本编辑器-Selection](https://developer.mozilla.org/zh-CN/docs/Web/API/Selection)  
 [富文本编辑器-Range](https://developer.mozilla.org/zh-CN/docs/Web/API/Selection)  
-[document.execCommand](https://developer.mozilla.org/zh-CN/docs/Web/API/Document/execCommand)
+[document.execCommand](https://developer.mozilla.org/zh-CN/docs/Web/API/Document/execCommand)  
+[文件上传<input type="file">](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/Input/file)
