@@ -1,6 +1,6 @@
 <template>
     <div class="simeditor-body">
-        <div class="simeditor-placeholder" v-if="!pureContent || pureContent=== '\n'">添加内容</div>
+        <div class="simeditor-placeholder" v-if="isPureHtml">添加内容</div>
         <!-- 使用contenteditable属性实现文本框效果 -->
         <div id="simeditor"
             class="simeditor-content"
@@ -28,6 +28,7 @@ export default {
     data() {
         return {
             pureContent: '',
+            isPureHtml: true
         };
     },
     mounted() {
@@ -42,6 +43,8 @@ export default {
                 this.pureContent = e.target.innerText;
                 this.$emit('input', e.target.innerText);
             }
+
+            this.isPureHtml = e.target.innerHTML === '<p><br></p>';
         },
         /**
          * 防止点击工具栏后输入框失去光标，先简单粗暴处理
@@ -258,6 +261,7 @@ export default {
             let range = selection.getRangeAt(0);
             range.insertNode(image);
             uploader.value = '';    // 注意上传完需要清空历史数据，否则change事件无法被正常触发
+            this.isPureHtml = false;
         },
 
         /**
