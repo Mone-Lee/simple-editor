@@ -356,6 +356,11 @@ export default {
         margin: 15px 0;
         padding: 0;
     }
+
+    img {
+        position: relative;
+        max-width: 100%;
+    }
 }
 
 input[type=file] {
