@@ -29,6 +29,10 @@
   content: "\e64a";
 }
 
+.toolbar-item-link:before {
+  content: "\e62b";
+}
+
 .toolbar-item-hr:before {
   content: "\ec7f";
 }

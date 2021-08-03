@@ -48,6 +48,13 @@ export default {
                     isWork: true
                 },
                 {
+                    title: '插入链接',
+                    type: 'link',
+                    isDisabled: false,
+                    isActive: false,
+                    isWork: true
+                },
+                {
                     title: '分割线',
                     type: 'hr',
                     isDisabled: false,
@@ -76,6 +83,7 @@ export default {
             this.tools[0].isActive = arr.includes('h3');
             this.tools[1].isActive = arr.includes('b') || arr.includes('strong');   // IE浏览器使用<strong>
             this.tools[2].isActive = arr.includes('i') || arr.includes('em');   // IE浏览器使用<em>
+            this.tools[4].isActive = arr.includes('a');
         }
     }
 };
@@ -118,6 +126,10 @@ export default {
 
     &.toolbar-item-italic {
         font-size: 14px;
+    }
+
+    &.toolbar-item-link {
+        font-size: 15px;
     }
 
     &.disabled {

@@ -193,6 +193,8 @@ export default {
                 this.translateItalicEle();
             } else if (command === 'upload') {
                 this.addImgEle();
+            } else if (command === 'link') {
+                this.addLinkEle();
             } else if (command === 'hr') {
                 this.addHrEle();
             }
@@ -262,6 +264,13 @@ export default {
             range.insertNode(image);
             uploader.value = '';    // 注意上传完需要清空历史数据，否则change事件无法被正常触发
             this.isPureHtml = false;
+        },
+
+        /**
+         * 处理工具栏插入链接操作命令
+         */
+        addLinkEle() {
+            console.log('插入链接');
         },
 
         /**
