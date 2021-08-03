@@ -248,6 +248,10 @@ export default {
          * 处理工具栏插入图片操作命令
          */
         addImgEle() {
+            if (!window.getSelection().rangeCount) {
+                this.focusOnEnd();
+            }
+
             let uploader = document.getElementById('file');
             uploader.click();
         },
@@ -277,33 +281,59 @@ export default {
          * 处理工具栏分隔线操作命令
          */
         addHrEle() {
-            if (window.getSelection().rangeCount) {
+            if (!window.getSelection().rangeCount) {
+                this.focusOnEnd();
+            }
+
+            let selection = window.getSelection();
+            let range = selection.getRangeAt(0);
+            let currentElement = range.commonAncestorContainer;
+            if (currentElement.nodeType !== 1) {
+                while (currentElement && currentElement.parentNode.nodeName.toLowerCase() !== 'div') {
+                    currentElement = currentElement.parentNode;
+                }
+            }
+
+            // 插入hr元素
+            let hrEle = document.createElement('hr');
+            let parentEle = currentElement.parentNode;
+            parentEle.appendChild(hrEle);
+
+            // 在hr元素后添加新行
+            let newEle = document.createElement('p');
+            let brEle = document.createElement('br');
+            newEle.appendChild(brEle);
+            parentEle.appendChild(newEle);
+
+            // 将光标定位到新节点上
+            range.setStart(newEle, 0);
+            range.setEnd(newEle, 0);
+            selection.addRange(range);
+
+            this.isPureHtml = false;
+        },
+
+        /**
+         * 当输入区域没有被选中，无法获取光标位置时，将光标定位在文本内容的最后
+         */
+        focusOnEnd() {
+            let editor = document.getElementById('simeditor');
+            if (window.getSelection) {
+                editor.focus();
                 let selection = window.getSelection();
                 let range = selection.getRangeAt(0);
-                let currentElement = range.commonAncestorContainer;
-                if (currentElement.nodeType !== 1) {
-                    while (currentElement && currentElement.parentNode.nodeName.toLowerCase() !== 'div') {
-                        currentElement = currentElement.parentNode;
-                    }
-                }
-
-                // 插入hr元素
-                let hrEle = document.createElement('hr');
-                let parentEle = currentElement.parentNode;
-                parentEle.appendChild(hrEle);
-
-                // 在hr元素后添加新行
-                let newEle = document.createElement('p');
-                let brEle = document.createElement('br');
-                newEle.appendChild(brEle);
-                parentEle.appendChild(newEle);
-
-                // 将光标定位到新节点上
-                range.setStart(newEle, 0);
-                range.setEnd(newEle, 0);
+                let endElement = editor.lastChild;
+                // 将光标定位到最后一个元素上
+                range.setStart(endElement, 0);
+                range.setEnd(endElement, 0);
                 selection.addRange(range);
+            } else {    //ie10 9 8 7 6 5
+                let range = document.createRange();
+                range.moveToElementText(editor); //range定位到editor
+                range.collapse(false); //光标移至最后
+                range.select();
             }
-        }
+        },
     }
 };
 </script>
