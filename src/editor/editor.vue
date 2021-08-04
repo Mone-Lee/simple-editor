@@ -146,7 +146,9 @@ export default {
                         }
                     } else {
                         let target = this.findFocusElement(node.childNodes, targetNode);
-                        return target;
+                        if (target) {
+                            return target;
+                        }
                     }
                 }
             }
@@ -164,20 +166,16 @@ export default {
             let newEle = document.createElement(newNodeName);
             newEle.innerHTML = oldEle.innerHTML;
 
-            // 将光标定位到新节点上
-            let newSelection = window.getSelection();
-            let newRange = newSelection.getRangeAt(0);
-
             let target = this.findFocusElement(newEle.childNodes, targetNode);
             if (target) {
                 oldEle.parentNode.insertBefore(newEle, oldEle);
                 oldEle.remove();
 
-                newRange.setStart(target, offset);
-                newRange.setEnd(target, offset);
-                newSelection.addRange(newRange);
-
+                // 将光标定位到新节点上
+                this.focusOnElement(target, offset);
                 this.handleFocus();
+            } else {
+                console.log('找不到光标位置');
             }
         },
 
@@ -266,6 +264,8 @@ export default {
             let selection = window.getSelection();
             let range = selection.getRangeAt(0);
             range.insertNode(image);
+            range.setStartAfter(image);
+            range.setEndAfter(image);
             uploader.value = '';    // 注意上传完需要清空历史数据，否则change事件无法被正常触发
             this.isPureHtml = false;
         },
@@ -320,13 +320,9 @@ export default {
             let editor = document.getElementById('simeditor');
             if (window.getSelection) {
                 editor.focus();
-                let selection = window.getSelection();
-                let range = selection.getRangeAt(0);
-                let endElement = editor.lastChild;
                 // 将光标定位到最后一个元素上
-                range.setStart(endElement, 0);
-                range.setEnd(endElement, 0);
-                selection.addRange(range);
+                let endElement = editor.lastChild;
+                this.focusOnElement(endElement);
             } else {    //ie10 9 8 7 6 5
                 let range = document.createRange();
                 range.moveToElementText(editor); //range定位到editor
@@ -334,6 +330,14 @@ export default {
                 range.select();
             }
         },
+
+        focusOnElement(ele, offset=0) {
+            let selection = window.getSelection();
+            let range = selection.getRangeAt(0);
+            range.setStart(ele, offset);
+            range.setEnd(ele, offset);
+            selection.addRange(range);
+        }
     }
 };
 </script>
