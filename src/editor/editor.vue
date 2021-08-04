@@ -41,7 +41,7 @@ export default {
                 e.target.innerHTML = '<p><br></p>';
             } else {
                 this.pureContent = e.target.innerText;
-                this.$emit('input', e.target.innerText);
+                this.$emit('input', e.target.innerHTML);
             }
 
             this.isPureHtml = e.target.innerHTML === '<p><br></p>';
@@ -174,6 +174,7 @@ export default {
                 // 将光标定位到新节点上
                 this.focusOnElement(target, offset);
                 this.handleFocus();
+                this.updateContent();
             } else {
                 console.log('找不到光标位置');
             }
@@ -268,6 +269,7 @@ export default {
             range.setEndAfter(image);
             uploader.value = '';    // 注意上传完需要清空历史数据，否则change事件无法被正常触发
             this.isPureHtml = false;
+            this.updateContent();
         },
 
         /**
@@ -311,6 +313,7 @@ export default {
             selection.addRange(range);
 
             this.isPureHtml = false;
+            this.updateContent();
         },
 
         /**
@@ -337,12 +340,19 @@ export default {
             range.setStart(ele, offset);
             range.setEnd(ele, offset);
             selection.addRange(range);
+        },
+
+        updateContent() {
+            let innerHTML = document.getElementById('simeditor').innerHTML;
+            this.$emit('input', innerHTML);
         }
     }
 };
 </script>
 
 <style lang="less"> // 注意不要添加scoped属性，否则动态添加的html内容的样式不生效
+@import url('../assets/css/style.less');
+
 .simeditor-body {
     position: relative;
 }
@@ -355,55 +365,6 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
-}
-
-.simeditor-content {
-    outline: 0;
-    font-size: 14px;
-    color: #262626;
-    word-wrap: break-word;
-    display: block;
-    line-height: 24px;
-    padding: 6px 8px;
-    min-height: 156px;
-    box-sizing: border-box;
-    user-select: text;
-    // -webkit-user-modify: read-write-plaintext-only;
-    // -moz-user-modify: read-write-plaintext-only;
-
-    p {
-        color: #262626;
-        margin: 0;
-        word-wrap: break-word;
-        font-size: 14px;
-        font-weight: 300;
-    }
-
-    h3 {
-        font-size: 20px;
-        font-weight: 500;
-        color: #262626;
-        line-height: 1;
-        margin-bottom: 10px;
-    }
-
-    b, strong {
-        font-weight: 700;
-    }
-
-    hr {
-        display: block;
-        height: 0px;
-        border: 0;
-        border-top: 1px solid #ccc;
-        margin: 15px 0;
-        padding: 0;
-    }
-
-    img {
-        position: relative;
-        max-width: 100%;
-    }
 }
 
 input[type=file] {
