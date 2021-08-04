@@ -25,7 +25,7 @@ Vue.use(lightEditor)
 
 编辑器的工具基本由原生JS操作DOM元素(heading)和`document.execCommond`(bold, italic)这一api来实现。同时配合`Selection`对象和`Range`对象来控制光标位置以及选中的操作元素。
 
-### 参考文献
+### 参考链接
 [【webpack】font-awesome加载不到woff字体文件](https://www.jianshu.com/p/964cdd5eb0a0)  
 [富文本编辑器-Selection](https://developer.mozilla.org/zh-CN/docs/Web/API/Selection)  
 [富文本编辑器-Range](https://developer.mozilla.org/zh-CN/docs/Web/API/Selection)  

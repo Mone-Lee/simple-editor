@@ -75,6 +75,11 @@ export default {
         setTextStyle(item) {
             if (item.isDisabled || !item.isWork)  return;
 
+            if (item.type === 'upload' || item.type === 'hr') {
+                this.tools.map(item => {
+                    item.isActive = false;
+                });
+            }
             this.$emit('setTextStyle', item.type);
         },
     },
