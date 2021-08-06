@@ -1,38 +1,42 @@
 @font-face {
-  font-family: "iconfont"; /* Project id 2632897 */
-  src: url('iconfont.woff2?t=1624590685849') format('woff2'),
-       url('iconfont.woff?t=1624590685849') format('woff'),
-       url('iconfont.ttf?t=1624590685849') format('truetype');
+	font-family: "iconfont"; /* Project id 2632897 */
+	src: url('iconfont.woff2?t=1624590685849') format('woff2'),
+		url('iconfont.woff?t=1624590685849') format('woff'),
+		url('iconfont.ttf?t=1624590685849') format('truetype');
 }
 
 .iconfont {
-  font-family: "iconfont" !important;
-  font-size: 16px;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	font-family: "iconfont" !important;
+	font-size: 16px;
+	font-style: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 .toolbar-item-title:before {
-  content: "\e6e2";
+  	content: "\e6e2";
 }
 
 .toolbar-item-bold:before {
-  content: "\e7db";
+  	content: "\e7db";
 }
 
 .toolbar-item-italic:before {
-  content: "\eaef";
+  	content: "\eaef";
 }
 
 .toolbar-item-upload:before {
-  content: "\e64a";
+  	content: "\e64a";
 }
 
 .toolbar-item-link:before {
-  content: "\e62b";
+  	content: "\e62b";
 }
 
 .toolbar-item-hr:before {
-  content: "\ec7f";
+  	content: "\ec7f";
+}
+
+.icon-close:before {
+  	content: "\e607";
 }
