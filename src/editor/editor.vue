@@ -1,19 +1,41 @@
 <template>
-    <div class="simeditor-body">
-        <div class="simeditor-placeholder" v-if="isPureHtml">添加内容</div>
-        <!-- 使用contenteditable属性实现文本框效果 -->
-        <div id="simeditor"
-            class="simeditor-content"
-            contenteditable="true"
-            @input="handleInput"
-            @blur="handleBlur"
-            @click="handleFocus"
-            @keypress="handleKeyPress"
-            >
-            <p><br></p>
+    <div class="simeditor-wrap">
+        <div class="simeditor-body">
+            <div class="simeditor-placeholder" v-if="isPureHtml">添加内容</div>
+            <!-- 使用contenteditable属性实现文本框效果 -->
+            <div id="simeditor"
+                class="simeditor-content"
+                contenteditable="true"
+                @input="handleInput"
+                @blur="handleBlur"
+                @click="handleFocus"
+                @keypress="handleKeyPress"
+                >
+                <p><br></p>
+            </div>
+
+            <input type="file" accept="image/*" name="file" id="file" >
         </div>
 
-        <input type="file" accept="image/*" name="file" id="file" >
+        <div class="link-popover"
+            v-show="isShowLinkPopover"
+            :style="{left: linkPopoverInfo.x + 'px', top: linkPopoverInfo.y + 'px'}">
+            <header class="popover-header">
+                <h3 class="popover-title">添加链接</h3>
+                <div class="iconfont icon-close" @click="isShowLinkPopover=false"></div>
+            </header>
+            <div class="popover-content">
+                <div class="item">
+                    <input class="link-text form-control" :placeholder="linkPopoverInfo.text" type="text" v-model="linkPopoverInfo.text">
+                </div>
+                <div class="item">
+                    <textarea class="link-url form-control" placeholder="链接地址" v-model="linkPopoverInfo.url"></textarea>
+                </div>
+                <div class="item">
+                    <button type="submit" class="btn btn-primary" :class="{'disabled': !linkPopoverInfo.url}" @click="updateLink">确定</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -28,7 +50,15 @@ export default {
     data() {
         return {
             pureContent: '',
-            isPureHtml: true
+            isPureHtml: true,
+            isShowLinkPopover: false,
+            editLinkElement: null,
+            linkPopoverInfo: {
+                x: 0,
+                y: 0,
+                text: '链接文字',
+                url: ''
+            }
         };
     },
     mounted() {
@@ -46,12 +76,14 @@ export default {
 
             this.isPureHtml = e.target.innerHTML === '<p><br></p>';
         },
+
         /**
          * 防止点击工具栏后输入框失去光标，先简单粗暴处理
          */
-        handleBlur(e) {
-            e.target.focus();
+        handleBlur() {
+            // e.target.focus();
         },
+
         /**
          * 处理回车换行的输入，规范行尾回车后默认生成 <p><br></p> 元素
          */
@@ -72,10 +104,18 @@ export default {
                 }, 10);
             }
         },
+
         /**
          * 编辑器内容被focus时的处理，判断当前focus元素使用了的工具类型，控制工具栏样式
          */
-        handleFocus() {
+        handleFocus(e) {
+            // 如果选中的是链接节点，则弹出链接设置弹框
+            if (e.target.nodeName.toLowerCase() === 'a') {
+                let ele = e.target;
+                this.editLinkElement = e.target;
+                this.showLinkPopover(ele.offsetLeft, ele.offsetTop + ele.offsetHeight, ele.innerHTML, ele.getAttribute('href'));
+            }
+
             let selection = window.getSelection();
             let activeArr = []; // 记录当前选中内容的样式，处理工具栏的active状态
             if (selection.rangeCount) {
@@ -276,7 +316,22 @@ export default {
          * 处理工具栏插入链接操作命令
          */
         addLinkEle() {
-            console.log('插入链接');
+            if (!window.getSelection().rangeCount) {
+                this.focusOnEnd();
+            }
+
+            let link = document.createElement('a');
+            link.innerHTML = '链接文字';
+            link.target = '_blank';
+            link.className = 'selected';
+            link.href = '';
+
+            let selection = window.getSelection();
+            let range = selection.getRangeAt(0);
+            range.insertNode(link);
+            range.selectNode(link);
+            this.isPureHtml = false;
+            this.updateContent();
         },
 
         /**
@@ -345,6 +400,25 @@ export default {
         updateContent() {
             let innerHTML = document.getElementById('simeditor').innerHTML;
             this.$emit('input', innerHTML);
+        },
+
+        showLinkPopover(x, y, text, url) {
+            if (!this.isShowLinkPopover) {
+                this.isShowLinkPopover = true;
+            }
+            this.linkPopoverInfo.x = x;
+            this.linkPopoverInfo.y = y;
+            this.linkPopoverInfo.text = text;
+            this.linkPopoverInfo.url = url;
+        },
+
+        updateLink() {
+            if (!this.linkPopoverInfo.url) return;
+
+            this.editLinkElement.innerHTML = this.linkPopoverInfo.text;
+            this.editLinkElement.href = this.linkPopoverInfo.url;
+            this.isShowLinkPopover = false;
+            this.updateContent();
         }
     }
 };
@@ -353,7 +427,7 @@ export default {
 <style lang="less"> // 注意不要添加scoped属性，否则动态添加的html内容的样式不生效
 @import url('../assets/css/style.less');
 
-.simeditor-body {
+.simeditor-wrap, .simeditor-body {
     position: relative;
 }
 
@@ -369,5 +443,113 @@ export default {
 
 input[type=file] {
     opacity: 0;
+}
+
+.link-popover {
+    width: 250px;
+    height: 250px;
+    margin-top: 3px;
+    background: #fff;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    position: absolute;
+    z-index: 20;
+
+    .popover-header {
+        padding: 10px 15px;
+        border-bottom: 1px solid #eee;
+        margin: 0px 15px;
+
+        .popover-title {
+            padding: 0;
+            background: none;
+            border: 0;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 30px;
+        }
+
+        .icon-close {
+            color: #8c8c8c;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+    }
+
+    .popover-content {
+        padding: 15px;
+        overflow-y: auto;
+
+        .item {
+            position: relative;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .form-control {
+            background-color: #fff;
+            border: 1px solid #d9d9d9;
+            border-radius: 3px;
+            color: #262626;
+            width: 100%;
+            padding: 8px 12px;
+            box-sizing: border-box;
+            line-height: 20px;
+            font-size: 14px;
+
+            &:focus {
+                border-color: #a6a6a6;
+                box-shadow: none;
+                outline: 0;
+            }
+
+            &::placeholder {
+                color: #c3c3c3;
+            }
+        }
+
+        input.form-control {
+            height: 40px;
+            line-height: 26px;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            width: 100%;
+            box-sizing: border-box;
+            resize: none;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            display: inline-block;
+            padding: 8px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            line-height: 20px;
+            color: #262626;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid #d9d9d9;
+            border-radius: 3px;
+            background-color: #fff;
+            white-space: nowrap;
+            opacity: 1;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: #1b9aee;
+            border-color: #1b9aee;
+        }
+
+        .disabled {
+            opacity: .65;
+        }
+    }
 }
 </style>
