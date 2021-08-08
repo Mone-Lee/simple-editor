@@ -18,7 +18,8 @@ Vue.use(lightEditor)
 2. 加粗bold
 3. 斜体italic
 4. 插入图片
-5. 分隔符hr
+5. 插入链接
+6. 分隔符hr
 
 #### 实现原理
 使用`contenteditable="true"`属性使div元素实现可编辑。由于`input`元素和`textarea`元素对html标签的显示不太友好，所以不使用这种方式实现。  
