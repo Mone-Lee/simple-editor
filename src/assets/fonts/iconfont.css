@@ -33,6 +33,14 @@
   	content: "\e62b";
 }
 
+.toolbar-item-ol:before {
+	content: "\e67e";
+}
+  
+.toolbar-item-ul:before {
+	content: "\e81c";
+}
+
 .toolbar-item-hr:before {
   	content: "\ec7f";
 }
