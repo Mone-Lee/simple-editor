@@ -110,7 +110,7 @@ export default {
          */
         handleFocus(e) {
             // 如果选中的是链接节点，则弹出链接设置弹框
-            if (e.target.nodeName.toLowerCase() === 'a') {
+            if (e && e.target.nodeName.toLowerCase() === 'a') {
                 let ele = e.target;
                 this.editLinkElement = e.target;
                 this.showLinkPopover(ele.offsetLeft, ele.offsetTop + ele.offsetHeight, ele.innerHTML, ele.getAttribute('href'));
@@ -302,6 +302,8 @@ export default {
             let image = document.createElement('img');
             image.src = URL.createObjectURL(files[0]);
 
+            let editor = document.getElementById('simeditor');
+            editor.focus();
             let selection = window.getSelection();
             let range = selection.getRangeAt(0);
             range.insertNode(image);
@@ -332,6 +334,7 @@ export default {
             range.selectNode(link);
             this.isPureHtml = false;
             this.updateContent();
+            link.click();
         },
 
         /**
@@ -363,9 +366,9 @@ export default {
             parentEle.appendChild(newEle);
 
             // 将光标定位到新节点上
-            range.setStart(newEle, 0);
-            range.setEnd(newEle, 0);
-            selection.addRange(range);
+            let editor = document.getElementById('simeditor');
+            editor.focus();
+            this.focusOnElement(newEle);
 
             this.isPureHtml = false;
             this.updateContent();
