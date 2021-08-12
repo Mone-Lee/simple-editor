@@ -39,8 +39,13 @@
    line-height: 1;
    min-height: 100%;
  }
- ol, ul {
-   list-style: none;
+
+ ol li {
+  list-style-type: decimal;
+ }
+
+ ul li {
+  list-style-type: disc;
  }
  
  /**
@@ -453,4 +458,3 @@
  [hidden] {
    display: none;
  }
- 
