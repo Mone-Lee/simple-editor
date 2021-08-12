@@ -104,6 +104,8 @@ export default {
                         nextEle.innerHTML = '<br>';
                         this.replaceNode(nextEle, 'p');
                     }
+
+                    this.handleFocus();
                 }, 10);
             }
         },
@@ -201,15 +203,16 @@ export default {
         /**
          * 使用新节点替换旧节点
          * 
-         * oldEle: element元素，当前选中的想要被替换的元素
+         * oldElement: element元素，当前选中的想要被替换的元素
          * newNodeName: String，新元素的节点名
+         * targetNode: oldEle中光标定位的子元素，用于比照，恢复光标在新元素中的确切位置  例如<p>AA<b>BB</b>CC</p>, 加入光标定位在BB文本元素中，则此时targetNode为<b>BB</b>，而oldElement为<p>AA<b>BB</b>CC</p>
          * offset: 光标在当前元素的选中区域的结束位置
          */
-        replaceNode(oldEle, newNodeName, targetNode, offset=0) {
+        replaceNode(oldElement, newNodeName, targetNode, offset=0) {
             let newEle = document.createElement(newNodeName);
-            newEle.innerHTML = oldEle.innerHTML;
-            oldEle.parentNode.insertBefore(newEle, oldEle);
-            oldEle.remove();
+            newEle.innerHTML = oldElement.innerHTML;
+            oldElement.parentNode.insertBefore(newEle, oldElement);
+            oldElement.remove();
 
             let target = null;
             if (targetNode) {
@@ -359,7 +362,7 @@ export default {
 
             let selection = window.getSelection();
             let range = selection.getRangeAt(0);
-            let targetNode = range.commonAncestorContainer.parentNode;
+            let targetNode = range.commonAncestorContainer;
 
             // 替换当前行为ol元素
             if (targetNode.nodeName.toLowerCase() !== 'p' && targetNode.nodeName.toLowerCase() !== 'h3') {
@@ -370,13 +373,21 @@ export default {
             parentEle.insertBefore(listEle, targetNode);
 
             // 在ol元素中插入li元素，li元素内容为旧行元素内容
-            this.addListItem(listEle, targetNode);
+            this.addListItem(listEle, targetNode, range);
             targetNode.remove();
 
+            this.isPureHtml = false;
             this.updateContent();
         },
 
-        addListItem(parentElement, targetNode) {
+        /**
+         * 将文本元素转换成列表子元素li
+         *
+         * parentElement: 子元素要插入的父元素ol、ul
+         * targetNode: 文本元素，提取里面的innerHTML，迁移到li元素中
+         * range: 设置光标定位在li元素
+         */
+        addListItem(parentElement, targetNode, range) {
             let innerHTML = targetNode.innerHTML;
 
             let liEle = document.createElement('li');
@@ -386,10 +397,9 @@ export default {
             // 将光标定位到新节点上
             let editor = document.getElementById('simeditor');
             editor.focus();
-            this.focusOnElement(liEle);
+            range.setStartAfter(liEle);
+            this.handleFocus();
         },
-
-
 
         /**
          * 处理工具栏分隔线操作命令

@@ -94,6 +94,10 @@ export default {
                     item.isActive = false;
                 });
             }
+
+            if (item.type === 'ol' || item.type === 'ul') {
+                this.tools[0].isActive = false;
+            }
             this.$emit('setTextStyle', item.type);
         },
     },
