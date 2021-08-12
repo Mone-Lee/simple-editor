@@ -61,13 +61,13 @@ export default {
                     isActive: false,
                     isWork: true
                 },
-                // {
-                //     title: '无序列表',
-                //     type: 'ul',
-                //     isDisabled: false,
-                //     isActive: false,
-                //     isWork: true
-                // },
+                {
+                    title: '无序列表',
+                    type: 'ul',
+                    isDisabled: false,
+                    isActive: false,
+                    isWork: true
+                },
                 {
                     title: '分割线',
                     type: 'hr',
@@ -108,7 +108,7 @@ export default {
             this.tools[2].isActive = arr.includes('i') || arr.includes('em');   // IE浏览器使用<em>
             this.tools[4].isActive = arr.includes('a');
             this.tools[5].isActive = arr.includes('ol');
-            // this.tools[6].isActive = arr.includes('ul');
+            this.tools[6].isActive = arr.includes('ul');
         }
     }
 };

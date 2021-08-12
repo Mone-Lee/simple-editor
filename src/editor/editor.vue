@@ -248,7 +248,9 @@ export default {
             } else if (command === 'link') {
                 this.addLinkEle();
             } else if (command === 'ol') {
-                this.translateOlEle();
+                this.translateListEle('ol');
+            } else if (command === 'ul') {
+                this.translateListEle('ul');
             } else if (command === 'hr') {
                 this.addHrEle();
             }
@@ -353,9 +355,9 @@ export default {
         },
 
         /**
-         * 处理工具栏插入有序列表操作命令
+         * 处理工具栏插入列表操作命令
          */
-        translateOlEle() {
+        translateListEle(type) {
             if (!window.getSelection().rangeCount) {
                 this.focusOnEnd();
             }
@@ -371,7 +373,7 @@ export default {
             let parentEle = targetNode.parentNode;
             // 替换当前元素为ol元素
             if (targetNode.nodeName.toLowerCase() === 'p' || targetNode.nodeName.toLowerCase() === 'h3') {
-                let listEle = document.createElement('ol');
+                let listEle = document.createElement(type);
                 parentEle.insertBefore(listEle, targetNode);
 
                 // 在ol元素中插入li元素，li元素内容为旧行元素内容
