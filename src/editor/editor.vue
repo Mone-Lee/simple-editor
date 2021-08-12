@@ -95,7 +95,7 @@ export default {
                 let selection = window.getSelection();
                 let range = selection.getRangeAt(0);
                 // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentNode
-                // 如果是在有序列表（无序列表）的情况下，range.endContainer选中的则是li元素
+                // 如果是在有序列表（无序列表）的通过回车结束列表的情况下，range.endContainer选中的则是li元素
                 let currentElement = range.endContainer.parentNode;
                 setTimeout(() => {
                     let nextEle = currentElement.nextElementSibling;
@@ -364,20 +364,35 @@ export default {
             let range = selection.getRangeAt(0);
             let targetNode = range.commonAncestorContainer;
 
-            // 替换当前行为ol元素
-            if (targetNode.nodeName.toLowerCase() !== 'p' && targetNode.nodeName.toLowerCase() !== 'h3') {
+            while (targetNode.nodeType === 3 || targetNode.nodeName.toLowerCase() === 'li') {
                 targetNode = targetNode.parentNode;
             }
-            let parentEle = targetNode.parentNode;
-            let listEle = document.createElement('ol');
-            parentEle.insertBefore(listEle, targetNode);
 
-            // 在ol元素中插入li元素，li元素内容为旧行元素内容
-            this.addListItem(listEle, targetNode, range);
-            targetNode.remove();
+            let parentEle = targetNode.parentNode;
+            // 替换当前元素为ol元素
+            if (targetNode.nodeName.toLowerCase() === 'p' || targetNode.nodeName.toLowerCase() === 'h3') {
+                let listEle = document.createElement('ol');
+                parentEle.insertBefore(listEle, targetNode);
+
+                // 在ol元素中插入li元素，li元素内容为旧行元素内容
+                this.addListItem(listEle, targetNode, range);
+                targetNode.remove();
+            } else if (targetNode.nodeName.toLowerCase() === 'ol' || targetNode.nodeName.toLowerCase() === 'ul') {
+                let childNodes = targetNode.childNodes;
+                let fragment = document.createDocumentFragment();
+                for (let i=0; i<childNodes.length; i++) {
+                    let newElement = document.createElement('p');
+                    newElement.innerHTML = childNodes[i].innerHTML;
+                    fragment.appendChild(newElement);
+                }
+
+                parentEle.insertBefore(fragment, targetNode);
+                targetNode.remove();
+            }
 
             this.isPureHtml = false;
             this.updateContent();
+            this.handleFocus();
         },
 
         /**
@@ -398,7 +413,7 @@ export default {
             let editor = document.getElementById('simeditor');
             editor.focus();
             range.setStartAfter(liEle);
-            this.handleFocus();
+            range.setEndAfter(liEle);
         },
 
         /**
