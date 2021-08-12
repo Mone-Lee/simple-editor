@@ -94,11 +94,14 @@ export default {
             if (keyCode === 13) {
                 let selection = window.getSelection();
                 let range = selection.getRangeAt(0);
-                let currentElement = range.endContainer.parentNode;     // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentNode
+                // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentNode
+                // 如果是在有序列表（无序列表）的情况下，range.endContainer选中的则是li元素
+                let currentElement = range.endContainer.parentNode;
                 setTimeout(() => {
                     let nextEle = currentElement.nextElementSibling;
 
                     if (nextEle && nextEle.nodeName.toLowerCase() === 'div') {
+                        nextEle.innerHTML = '<br>';
                         this.replaceNode(nextEle, 'p');
                     }
                 }, 10);
@@ -205,18 +208,25 @@ export default {
         replaceNode(oldEle, newNodeName, targetNode, offset=0) {
             let newEle = document.createElement(newNodeName);
             newEle.innerHTML = oldEle.innerHTML;
+            oldEle.parentNode.insertBefore(newEle, oldEle);
+            oldEle.remove();
 
-            let target = this.findFocusElement(newEle.childNodes, targetNode);
-            if (target) {
-                oldEle.parentNode.insertBefore(newEle, oldEle);
-                oldEle.remove();
+            let target = null;
+            if (targetNode) {
+                target = this.findFocusElement(newEle.childNodes, targetNode);
 
+                if (!target) {
+                    console.log('找不到光标位置');
+                    return;
+                }
+
+                // 将光标定位到新节点上
+                let editor = document.getElementById('simeditor');
+                editor.focus();
                 // 将光标定位到新节点上
                 this.focusOnElement(target, offset);
                 this.handleFocus();
                 this.updateContent();
-            } else {
-                console.log('找不到光标位置');
             }
         },
 
@@ -234,6 +244,8 @@ export default {
                 this.addImgEle();
             } else if (command === 'link') {
                 this.addLinkEle();
+            } else if (command === 'ol') {
+                this.translateOlEle();
             } else if (command === 'hr') {
                 this.addHrEle();
             }
@@ -338,6 +350,48 @@ export default {
         },
 
         /**
+         * 处理工具栏插入有序列表操作命令
+         */
+        translateOlEle() {
+            if (!window.getSelection().rangeCount) {
+                this.focusOnEnd();
+            }
+
+            let selection = window.getSelection();
+            let range = selection.getRangeAt(0);
+            let targetNode = range.commonAncestorContainer.parentNode;
+
+            // 替换当前行为ol元素
+            if (targetNode.nodeName.toLowerCase() !== 'p' && targetNode.nodeName.toLowerCase() !== 'h3') {
+                targetNode = targetNode.parentNode;
+            }
+            let parentEle = targetNode.parentNode;
+            let listEle = document.createElement('ol');
+            parentEle.insertBefore(listEle, targetNode);
+
+            // 在ol元素中插入li元素，li元素内容为旧行元素内容
+            this.addListItem(listEle, targetNode);
+            targetNode.remove();
+
+            this.updateContent();
+        },
+
+        addListItem(parentElement, targetNode) {
+            let innerHTML = targetNode.innerHTML;
+
+            let liEle = document.createElement('li');
+            liEle.innerHTML = innerHTML === '<br>' ? '' : innerHTML;
+            parentElement.appendChild(liEle);
+
+            // 将光标定位到新节点上
+            let editor = document.getElementById('simeditor');
+            editor.focus();
+            this.focusOnElement(liEle);
+        },
+
+
+
+        /**
          * 处理工具栏分隔线操作命令
          */
         addHrEle() {
@@ -375,7 +429,7 @@ export default {
         },
 
         /**
-         * 当输入区域没有被选中，无法获取光标位置时，将光标定位在文本内容的最后
+         * 当输入区域没有被选中，无法获取光标位置时，将光标定位在编辑内容的最后
          */
         focusOnEnd() {
             let editor = document.getElementById('simeditor');

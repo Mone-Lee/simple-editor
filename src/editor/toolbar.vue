@@ -55,6 +55,20 @@ export default {
                     isWork: true
                 },
                 {
+                    title: '有序列表',
+                    type: 'ol',
+                    isDisabled: false,
+                    isActive: false,
+                    isWork: true
+                },
+                // {
+                //     title: '无序列表',
+                //     type: 'ul',
+                //     isDisabled: false,
+                //     isActive: false,
+                //     isWork: true
+                // },
+                {
                     title: '分割线',
                     type: 'hr',
                     isDisabled: false,
@@ -89,6 +103,8 @@ export default {
             this.tools[1].isActive = arr.includes('b') || arr.includes('strong');   // IE浏览器使用<strong>
             this.tools[2].isActive = arr.includes('i') || arr.includes('em');   // IE浏览器使用<em>
             this.tools[4].isActive = arr.includes('a');
+            this.tools[5].isActive = arr.includes('ol');
+            // this.tools[6].isActive = arr.includes('ul');
         }
     }
 };
@@ -111,6 +127,7 @@ export default {
         font-size: 12px;
         height: 30px;
         color: #595959;
+        list-style: none;
     }
 }
 .toolbar-item {
@@ -135,6 +152,14 @@ export default {
 
     &.toolbar-item-link {
         font-size: 15px;
+    }
+
+    &.toolbar-item-ol {
+        font-size: 16px;
+    }
+
+    &.toolbar-item-ul {
+        font-size: 17px;
     }
 
     &.disabled {
