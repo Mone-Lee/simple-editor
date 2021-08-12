@@ -362,9 +362,9 @@ export default {
 
             let selection = window.getSelection();
             let range = selection.getRangeAt(0);
-            let targetNode = range.commonAncestorContainer;
+            let targetNode = range.commonAncestorContainer.parentNode;
 
-            while (targetNode.nodeType === 3 || targetNode.nodeName.toLowerCase() === 'li') {
+            while (targetNode && targetNode.parentNode.nodeName.toLowerCase() !== 'div') {
                 targetNode = targetNode.parentNode;
             }
 
@@ -377,17 +377,38 @@ export default {
                 // 在ol元素中插入li元素，li元素内容为旧行元素内容
                 this.addListItem(listEle, targetNode, range);
                 targetNode.remove();
+
             } else if (targetNode.nodeName.toLowerCase() === 'ol' || targetNode.nodeName.toLowerCase() === 'ul') {
                 let childNodes = targetNode.childNodes;
                 let fragment = document.createDocumentFragment();
+
+                // 将ol、ul元素的子元素转换为p元素, 并恢复光标位置
+                let target = null;
+                let offset = range.endOffset;
                 for (let i=0; i<childNodes.length; i++) {
                     let newElement = document.createElement('p');
                     newElement.innerHTML = childNodes[i].innerHTML;
                     fragment.appendChild(newElement);
+
+                    let focusNode = range.commonAncestorContainer;
+                    if (focusNode) {
+                        target = this.findFocusElement(newElement.childNodes, focusNode);
+
+                        if (!target) {
+                            console.log('找不到光标位置');
+                        }
+                    }
                 }
 
                 parentEle.insertBefore(fragment, targetNode);
                 targetNode.remove();
+
+                // 将光标定位到新节点上
+                let editor = document.getElementById('simeditor');
+                editor.focus();
+                if (target) {
+                    this.focusOnElement(target, offset);
+                }
             }
 
             this.isPureHtml = false;
@@ -403,17 +424,25 @@ export default {
          * range: 设置光标定位在li元素
          */
         addListItem(parentElement, targetNode, range) {
-            let innerHTML = targetNode.innerHTML;
-
             let liEle = document.createElement('li');
-            liEle.innerHTML = innerHTML === '<br>' ? '' : innerHTML;
+            liEle.innerHTML = targetNode.innerHTML === '<br>' ? '' : targetNode.innerHTML;
             parentElement.appendChild(liEle);
 
-            // 将光标定位到新节点上
-            let editor = document.getElementById('simeditor');
-            editor.focus();
-            range.setStartAfter(liEle);
-            range.setEndAfter(liEle);
+            let target = null;
+            let focusNode = range.commonAncestorContainer;
+            let offset = range.endOffset;
+            if (focusNode) {
+                target = this.findFocusElement(liEle.childNodes, focusNode);
+                if (!target) {
+                    console.log('找不到光标位置');
+                    return;
+                }
+
+                // 将光标定位到新节点上
+                let editor = document.getElementById('simeditor');
+                editor.focus();
+                this.focusOnElement(target, offset);
+            }
         },
 
         /**
