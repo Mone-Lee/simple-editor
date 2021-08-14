@@ -74,6 +74,13 @@ export default {
                     isDisabled: false,
                     isActive: false,
                     isWork: true
+                },
+                {
+                    title: '表格',
+                    type: 'table',
+                    isDisabled: false,
+                    isActive: false,
+                    isWork: true
                 }
             ]
         };
@@ -108,7 +115,7 @@ export default {
             this.tools[2].isActive = arr.includes('i') || arr.includes('em');   // IE浏览器使用<em>
             this.tools[4].isActive = arr.includes('a');
             this.tools[5].isActive = arr.includes('ol');
-            this.tools[6].isActive = arr.includes('ul');
+            this.tools[8].isActive = arr.includes('table');
         }
     }
 };
@@ -164,6 +171,10 @@ export default {
 
     &.toolbar-item-ul {
         font-size: 17px;
+    }
+
+    &.toolbar-item-table {
+        font-size: 14px;
     }
 
     &.disabled {

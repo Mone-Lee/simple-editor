@@ -45,6 +45,10 @@
   	content: "\ec7f";
 }
 
+.toolbar-item-table:before{
+	content: "\e63e";
+}
+
 .icon-close:before {
   	content: "\e607";
 }

@@ -253,6 +253,8 @@ export default {
                 this.translateListEle('ul');
             } else if (command === 'hr') {
                 this.addHrEle();
+            } else if (command === 'table') {
+                this.addTableEle();
             }
         },
 
@@ -448,7 +450,7 @@ export default {
         },
 
         /**
-         * 处理工具栏分隔线操作命令
+         * 处理工具栏插入分隔线操作命令
          */
         addHrEle() {
             if (!window.getSelection().rangeCount) {
@@ -482,6 +484,13 @@ export default {
 
             this.isPureHtml = false;
             this.updateContent();
+        },
+
+        /**
+         * 处理工具栏插入操作命令
+         */
+        addTableEle() {
+            console.log('表格');
         },
 
         /**
