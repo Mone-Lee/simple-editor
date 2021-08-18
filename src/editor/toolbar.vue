@@ -1,8 +1,16 @@
 <template>
     <div class="simeditor-toolbar">
         <ul class="toolbar-list">
-            <li v-for="tool in tools" :key="tool.title" @click.prevent="setTextStyle(tool)">
+            <li v-for="tool in tools" :key="tool.title" :class="{'table-active': tool.isClick}" :id="'toolbar-' + tool.type" @click.prevent="setTextStyle(tool)">
                 <span :class="['toolbar-item iconfont', `toolbar-item-${tool.type}`, {'disabled': !tool.isWork || tool.isDisabled}, {'active': tool.isActive}]" :title="tool.title" :icon="tool.icon"></span>
+
+                <div v-if="tool.type === 'table' && tool.isClick" class="toolbar-menu-table">
+                    <div class="rows" v-for="row in 5" :key="'row' + row">
+                        <div class="cols" v-for="col in 6" :key="'col' + col">
+                            <div class="td" :class="{'selected': row <= tablePoint.row && col <= tablePoint.col }" @mouseover="selectTablePoint(row, col)" @click="setTablePoint"></div>
+                        </div>
+                    </div>
+                </div>
             </li>
         </ul>
     </div>
@@ -80,9 +88,14 @@ export default {
                     type: 'table',
                     isDisabled: false,
                     isActive: false,
-                    isWork: true
+                    isWork: true,
+                    isClick: false,     // 被点击时，显示表格创建选择弹窗
                 }
-            ]
+            ],
+            tablePoint: {
+                row: 0,
+                col: 0
+            }
         };
     },
     mounted() {
@@ -105,8 +118,30 @@ export default {
             if (item.type === 'ol' || item.type === 'ul') {
                 this.tools[0].isActive = false;
             }
-            this.$emit('setTextStyle', item.type);
+
+            if (item.type === 'table') {
+                item.isActive = true;
+                item.isClick = true;
+            }
+
+            if (item.type !== 'table') {
+                this.$emit('setTextStyle', item);
+            }
         },
+
+        selectTablePoint(row, col) {
+            this.tablePoint.row = row;
+            this.tablePoint.col = col;
+        },
+
+        setTablePoint() {
+            let command = {
+                type: 'table',
+                tablePoint: this.tablePoint
+            };
+            this.$emit('setTextStyle', command);
+            this.tools[8].isClick = false;
+        }
     },
     watch: {
         activeList(arr) {
@@ -132,19 +167,25 @@ export default {
 .toolbar-list {
     display: flex;
     align-items: center;
+    padding-left: 5px;
 
     &>li {
-        width: 30px;
         font-size: 12px;
         height: 30px;
         color: #595959;
         list-style: none;
+        position: relative;
+    }
+
+    .table-active {
+        background: #FFFFFF;
+        box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.2);
     }
 }
 .toolbar-item {
     font-size: 12px;
     color: #595959;
-    width: 40px;
+    width: 30px;
     height: 30px;
     display: flex;
     align-items: center;
@@ -184,6 +225,35 @@ export default {
 
     &.active {
         color: #3da8f5;
+    }
+}
+
+.toolbar-menu-table {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    z-index: 20;
+    background: #fff;
+    text-align: left;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+    padding: 1px;
+
+    .rows {
+        display: flex;
+        align-items: center;
+    }
+
+    .td {
+        height: 14px;
+        width: 16px;
+        padding: 0;
+        border: 1px solid #fff;
+        background: #f3f3f3;
+        cursor: pointer;
+
+        &.selected {
+            background: #cfcfcf;
+        }
     }
 }
 </style>

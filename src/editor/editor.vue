@@ -41,12 +41,6 @@
 
 <script>
 export default {
-    props: {
-        command: {
-            type: String,
-            default: ''
-        }
-    },
     data() {
         return {
             pureContent: '',
@@ -236,25 +230,25 @@ export default {
         /**
          * 处理工具栏操作命令，分发操作
          */
-        dealWithContent(command) {
-            if (command === 'title') {
+        dealWithCommand(command) {
+            if (command.type === 'title') {
                 this.translateTitleEle();
-            } else if (command === 'bold') {
+            } else if (command.type === 'bold') {
                 this.translateBoldEle();
-            } else if (command === 'italic') {
+            } else if (command.type === 'italic') {
                 this.translateItalicEle();
-            } else if (command === 'upload') {
+            } else if (command.type === 'upload') {
                 this.addImgEle();
-            } else if (command === 'link') {
+            } else if (command.type === 'link') {
                 this.addLinkEle();
-            } else if (command === 'ol') {
+            } else if (command.type === 'ol') {
                 this.translateListEle('ol');
-            } else if (command === 'ul') {
+            } else if (command.type === 'ul') {
                 this.translateListEle('ul');
-            } else if (command === 'hr') {
+            } else if (command.type === 'hr') {
                 this.addHrEle();
-            } else if (command === 'table') {
-                this.addTableEle();
+            } else if (command.type === 'table') {
+                this.addTableEle(command.tablePoint);
             }
         },
 
@@ -489,8 +483,9 @@ export default {
         /**
          * 处理工具栏插入操作命令
          */
-        addTableEle() {
-            console.log('表格');
+        addTableEle(tablePoint) {
+            let { row, col } = tablePoint;
+            console.log('表格', row, col);
         },
 
         /**

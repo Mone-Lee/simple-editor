@@ -2,9 +2,9 @@
     <div class="container">
         <h2 class="title">editor</h2>
         <div class="simeditor">
-            <toolbar unselectable="on" @setTextStyle="handleSetTextStyle" :activeList="activeList"></toolbar>
+            <toolbar ref="toolbar" unselectable="on" @setTextStyle="handleSetTextStyle" :activeList="activeList"></toolbar>
             <!-- 使用contenteditable属性实现文本框效果 -->
-            <editor ref="editor" v-model="content" :command="command" @handleFocus="handleEditorFocus"></editor>
+            <editor ref="editor" v-model="content" @handleFocus="handleEditorFocus"></editor>
         </div>
         <div class="simeditor-content show-box" v-html="content"></div>
     </div>
@@ -18,21 +18,45 @@ export default {
     components: { toolbar, editor },
     data() {
         return {
-            command: '',    // 样式调整命令
             activeList: [],     // 工具栏活跃样式
             content: ''
         };
     },
     mounted() {
+        document.addEventListener('click', this.handleClick, false);
     },
     methods: {
         handleSetTextStyle(e) {
-            this.command = e;
-            this.$refs.editor.dealWithContent(this.command);
+            this.$refs.editor.dealWithCommand(e);
         },
 
         handleEditorFocus(e) {
             this.activeList = e;
+        },
+
+        handleClick(e) {
+            let toolbarTable = document.getElementById('toolbar-table');
+            if (!this.hasChild(toolbarTable, e.target)) {
+                this.$refs.toolbar.tools[8].isClick = false;
+            }
+        },
+
+
+        hasChild(parent, child) {
+            let parentNode = null;
+            if (parent && child) {
+                parentNode = child.parentNode;
+
+                while (parentNode) {
+                    if (parent === parentNode) {
+                        return true;
+                    }
+
+                    parentNode = parentNode.parentNode;
+                }
+            }
+
+            return false;
         }
     },
 
