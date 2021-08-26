@@ -37,10 +37,10 @@ export default {
         handleClick(e) {
             let toolbarTable = document.getElementById('toolbar-table');
             if (!this.hasChild(toolbarTable, e.target)) {
+                this.$refs.toolbar.tools[8].isActive = false;
                 this.$refs.toolbar.tools[8].isClick = false;
             }
         },
-
 
         hasChild(parent, child) {
             let parentNode = null;

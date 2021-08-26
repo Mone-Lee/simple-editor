@@ -481,11 +481,55 @@ export default {
         },
 
         /**
-         * 处理工具栏插入操作命令
+         * 处理工具栏插入表格操作命令
          */
         addTableEle(tablePoint) {
             let { row, col } = tablePoint;
-            console.log('表格', row, col);
+
+            let table = document.createElement('table');
+            let data = new Array();
+            data.push('<table border="1"><thead><tr>');
+            for (let i=0; i<col; i++) {
+                data.push('<th></th>');
+            }
+            data.push('</tr></thead><tbody>');
+
+            for (let j=0; j<row; j++) {
+                data.push('<tr>');
+                for (let k=0; k<col; k++) {
+                    data.push('<td></td>');
+                }
+                data.push('</tr>');
+            }
+
+            data.push('</tbody></table>');
+            table.innerHTML = data.join('');
+
+            if (!window.getSelection().rangeCount) {
+                this.focusOnEnd();
+            }
+            let selection = window.getSelection();
+            let range = selection.getRangeAt(0);
+            let currentElement = range.commonAncestorContainer;
+            // 如果当前光标定位是 单元格中的文本元素 或 空单元格<td></td>, 则向上寻找到表格的根节点元素
+            if (currentElement.nodeType !== 1 || currentElement.nodeName.toLowerCase() === 'td') {
+                while (currentElement && currentElement.parentNode.nodeName.toLowerCase() !== 'div') {
+                    currentElement = currentElement.parentNode;
+                }
+            }
+
+            let parentEle = currentElement.parentNode;
+            parentEle.appendChild(table);
+
+
+            // 将光标定位到新节点上
+            let editor = document.getElementById('simeditor');
+            editor.focus();
+            let thead = table.firstChild.firstChild;
+            this.focusOnElement(thead);
+
+            this.isPureHtml = false;
+            this.updateContent();
         },
 
         /**

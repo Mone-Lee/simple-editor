@@ -4,10 +4,10 @@
             <li v-for="tool in tools" :key="tool.title" :class="{'table-active': tool.isClick}" :id="'toolbar-' + tool.type" @click.prevent="setTextStyle(tool)">
                 <span :class="['toolbar-item iconfont', `toolbar-item-${tool.type}`, {'disabled': !tool.isWork || tool.isDisabled}, {'active': tool.isActive}]" :title="tool.title" :icon="tool.icon"></span>
 
-                <div v-if="tool.type === 'table' && tool.isClick" class="toolbar-menu-table">
+                <div v-if="tool.type === 'table' && tool.isClick" class="toolbar-menu-table" id="toolbar-table">
                     <div class="rows" v-for="row in 5" :key="'row' + row">
                         <div class="cols" v-for="col in 6" :key="'col' + col">
-                            <div class="td" :class="{'selected': row <= tablePoint.row && col <= tablePoint.col }" @mouseover="selectTablePoint(row, col)" @click="setTablePoint"></div>
+                            <div class="td" :class="{'selected': row <= tablePoint.row && col <= tablePoint.col }" @mouseover.stop="selectTablePoint(row, col)" @click.stop="setTablePoint"></div>
                         </div>
                     </div>
                 </div>
@@ -141,6 +141,11 @@ export default {
             };
             this.$emit('setTextStyle', command);
             this.tools[8].isClick = false;
+            // 清空旧数据
+            this.tablePoint = {
+                row: 0,
+                col: 0
+            };
         }
     },
     watch: {
