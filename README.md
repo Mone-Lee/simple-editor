@@ -22,9 +22,7 @@ Vue.use(lightEditor)
 6. 有序列表
 7. 无序列表
 8. 分隔符hr
-
-待实现功能：
-1. 插入表格
+9. 插入表格
 
 #### 实现原理
 使用`contenteditable="true"`属性使div元素实现可编辑。由于`input`元素和`textarea`元素对html标签的显示不太友好，所以不使用这种方式实现。  
@@ -38,3 +36,4 @@ Vue.use(lightEditor)
 *  [document.execCommand](https://developer.mozilla.org/zh-CN/docs/Web/API/Document/execCommand)  
 * [文件上传<input type="file">](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/Input/file)  
 * [在contenteditable元素中将光标定位到最后](https://www.cnblogs.com/ybixian/p/10601224.html)
+* [JavaScript动态创建表格的四种方法和性能测试](https://blog.51cto.com/jeoff/225188)
