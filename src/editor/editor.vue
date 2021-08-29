@@ -616,6 +616,8 @@ export default {
 
 input[type=file] {
     opacity: 0;
+    width: 0;
+    height: 0;
 }
 
 .link-popover {
