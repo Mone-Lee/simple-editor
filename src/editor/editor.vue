@@ -454,7 +454,10 @@ export default {
             let selection = window.getSelection();
             let range = selection.getRangeAt(0);
             let currentElement = range.commonAncestorContainer;
-            if (currentElement.nodeType !== 1) {
+            if (currentElement.nodeName.toLowerCase() === 'div') {
+                this.focusOnEnd();
+                currentElement = document.getElementById('simeditor').lastChild;
+            } else if (currentElement.nodeType !== 1) {
                 while (currentElement && currentElement.parentNode.nodeName.toLowerCase() !== 'div') {
                     currentElement = currentElement.parentNode;
                 }
@@ -462,14 +465,13 @@ export default {
 
             // 插入hr元素
             let hrEle = document.createElement('hr');
-            let parentEle = currentElement.parentNode;
-            parentEle.appendChild(hrEle);
+            this.insertNodeAfter(hrEle, currentElement);
 
             // 在hr元素后添加新行
             let newEle = document.createElement('p');
             let brEle = document.createElement('br');
             newEle.appendChild(brEle);
-            parentEle.appendChild(newEle);
+            this.insertNodeAfter(newEle, hrEle);
 
             // 将光标定位到新节点上
             let editor = document.getElementById('simeditor');
@@ -512,15 +514,16 @@ export default {
             let range = selection.getRangeAt(0);
             let currentElement = range.commonAncestorContainer;
             // 如果当前光标定位是 单元格中的文本元素 或 空单元格<td></td>, 则向上寻找到表格的根节点元素
-            if (currentElement.nodeType !== 1 || currentElement.nodeName.toLowerCase() === 'td') {
+            if (currentElement.nodeName.toLowerCase() === 'div') {
+                this.focusOnEnd();
+                currentElement = document.getElementById('simeditor').lastChild;
+            } else if (currentElement.nodeType !== 1 || currentElement.nodeName.toLowerCase() === 'td') {
                 while (currentElement && currentElement.parentNode.nodeName.toLowerCase() !== 'div') {
                     currentElement = currentElement.parentNode;
                 }
             }
 
-            let parentEle = currentElement.parentNode;
-            parentEle.appendChild(table);
-
+            this.insertNodeAfter(table, currentElement);
 
             // 将光标定位到新节点上
             let editor = document.getElementById('simeditor');
@@ -580,6 +583,15 @@ export default {
             this.editLinkElement.href = this.linkPopoverInfo.url;
             this.isShowLinkPopover = false;
             this.updateContent();
+        },
+
+        insertNodeAfter(newNode, targetNode) {
+            let parentNode = targetNode.parentNode;
+            if (parentNode.lastChild === targetNode) {
+                parentNode.appendChild(newNode);
+            } else {
+                parentNode.insertBefore(newNode, targetNode.nextSibling);
+            }
         }
     }
 };

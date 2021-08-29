@@ -1,6 +1,5 @@
 <template>
     <div class="container">
-        <h2 class="title">editor</h2>
         <div class="simeditor">
             <toolbar ref="toolbar" unselectable="on" @setTextStyle="handleSetTextStyle" :activeList="activeList"></toolbar>
             <!-- 使用contenteditable属性实现文本框效果 -->
