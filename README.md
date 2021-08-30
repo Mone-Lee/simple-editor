@@ -25,8 +25,9 @@ Vue.use(lightEditor)
 9. 插入表格
 
 #### 展示效果
-![alt 效果图1](https://note.youdao.com/yws/public/resource/2f9dd0205a972ef294d6906edeb10a61/xmlnote/BC886F42106741C5A39D6221CC8DD3EA/8396)  
-![alt 效果图2](https://note.youdao.com/yws/public/resource/2f9dd0205a972ef294d6906edeb10a61/xmlnote/4370C8B6799946C09B38EF2B846AD0E5/8398)
+![alt 效果图1](https://note.youdao.com/yws/public/resource/2f9dd0205a972ef294d6906edeb10a61/xmlnote/C1DA143BAEC94427AA680289520C92EF/8407)  
+![alt 效果图2](https://note.youdao.com/yws/public/resource/2f9dd0205a972ef294d6906edeb10a61/xmlnote/17FCE2CF327E488BBF4663C02D03D730/8409)
+![alt 效果图3](https://note.youdao.com/yws/public/resource/2f9dd0205a972ef294d6906edeb10a61/xmlnote/4370C8B6799946C09B38EF2B846AD0E5/8398)
 
 #### 实现原理
 使用`contenteditable="true"`属性使div元素实现可编辑。由于`input`元素和`textarea`元素对html标签的显示不太友好，所以不使用这种方式实现。  
