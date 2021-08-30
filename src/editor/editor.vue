@@ -168,11 +168,14 @@ export default {
         /**
          * 在进行元素标签替换后，在当前元素的子元素中查找，恢复获得焦点的元素
          * 
-         * nodeList: 当前替换标签元素的子元素
+         * originalNode: 当前替换标签元素
          * targetNode: 替换标签前元素中获得焦点的子元素
          */
-        findFocusElement(nodeList, targetNode) {
-            if (nodeList.length === 1) {
+        findFocusElement(originalNode, targetNode) {
+            let nodeList = originalNode.childNodes;
+            if (nodeList.length === 0) {
+                return originalNode;
+            } else if (nodeList.length === 1) {
                 if (this.checkTextElementEqual(nodeList[0], targetNode, true)) {
                     return nodeList[0];
                 }
@@ -184,7 +187,7 @@ export default {
                             return node;
                         }
                     } else {
-                        let target = this.findFocusElement(node.childNodes, targetNode);
+                        let target = this.findFocusElement(node, targetNode);
                         if (target) {
                             return target;
                         }
@@ -210,7 +213,7 @@ export default {
 
             let target = null;
             if (targetNode) {
-                target = this.findFocusElement(newEle.childNodes, targetNode);
+                target = this.findFocusElement(newEle, targetNode);
 
                 if (!target) {
                     console.log('找不到光标位置');
@@ -360,24 +363,28 @@ export default {
 
             let selection = window.getSelection();
             let range = selection.getRangeAt(0);
-            let targetNode = range.commonAncestorContainer.parentNode;
-
-            while (targetNode && targetNode.parentNode.nodeName.toLowerCase() !== 'div') {
-                targetNode = targetNode.parentNode;
+            let currentElement = range.commonAncestorContainer;
+            if (currentElement.nodeName.toLowerCase() === 'div') {
+                this.focusOnEnd();
+                currentElement = document.getElementById('simeditor').lastChild;
+            } else if (currentElement.nodeType !== 1) {
+                while (currentElement && currentElement.parentNode.nodeName.toLowerCase() !== 'div') {
+                    currentElement = currentElement.parentNode;
+                }
             }
 
-            let parentEle = targetNode.parentNode;
+            let parentEle = currentElement.parentNode;
             // 替换当前元素为ol元素
-            if (targetNode.nodeName.toLowerCase() === 'p' || targetNode.nodeName.toLowerCase() === 'h3') {
+            if (currentElement.nodeName.toLowerCase() === 'p' || currentElement.nodeName.toLowerCase() === 'h3') {
                 let listEle = document.createElement(type);
-                parentEle.insertBefore(listEle, targetNode);
+                parentEle.insertBefore(listEle, currentElement);
 
                 // 在ol元素中插入li元素，li元素内容为旧行元素内容
-                this.addListItem(listEle, targetNode, range);
-                targetNode.remove();
+                this.addListItem(listEle, currentElement, range);
+                currentElement.remove();
 
-            } else if (targetNode.nodeName.toLowerCase() === 'ol' || targetNode.nodeName.toLowerCase() === 'ul') {
-                let childNodes = targetNode.childNodes;
+            } else if (currentElement.nodeName.toLowerCase() === 'ol' || currentElement.nodeName.toLowerCase() === 'ul') {
+                let childNodes = currentElement.childNodes;
                 let fragment = document.createDocumentFragment();
 
                 // 将ol、ul元素的子元素转换为p元素, 并恢复光标位置
@@ -390,7 +397,7 @@ export default {
 
                     let focusNode = range.commonAncestorContainer;
                     if (focusNode) {
-                        target = this.findFocusElement(newElement.childNodes, focusNode);
+                        target = this.findFocusElement(newElement, focusNode);
 
                         if (!target) {
                             console.log('找不到光标位置');
@@ -398,8 +405,8 @@ export default {
                     }
                 }
 
-                parentEle.insertBefore(fragment, targetNode);
-                targetNode.remove();
+                parentEle.insertBefore(fragment, currentElement);
+                currentElement.remove();
 
                 // 将光标定位到新节点上
                 let editor = document.getElementById('simeditor');
@@ -430,7 +437,7 @@ export default {
             let focusNode = range.commonAncestorContainer;
             let offset = range.endOffset;
             if (focusNode) {
-                target = this.findFocusElement(liEle.childNodes, focusNode);
+                target = this.findFocusElement(liEle, focusNode);
                 if (!target) {
                     console.log('找不到光标位置');
                     return;
