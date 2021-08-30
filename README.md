@@ -13,6 +13,11 @@ Vue.use(lightEditor)
 <light-editor></light-editor>
 ```
 
+#### 实现原理
+使用`contenteditable="true"`属性使div元素实现可编辑。由于`input`元素和`textarea`元素对html标签的显示不太友好，所以不使用这种方式实现。  
+
+编辑器的工具基本由原生JS操作DOM元素(heading)和`document.execCommond`(bold, italic)这一api来实现。同时配合`Selection`对象和`Range`对象来控制光标位置以及选中的操作元素。
+
 #### 功能支持
 1. 标题heading (当前仅支持固定大小h3)
 2. 加粗bold
@@ -29,10 +34,6 @@ Vue.use(lightEditor)
 ![alt 效果图2](https://note.youdao.com/yws/public/resource/2f9dd0205a972ef294d6906edeb10a61/xmlnote/17FCE2CF327E488BBF4663C02D03D730/8409)
 ![alt 效果图3](https://note.youdao.com/yws/public/resource/2f9dd0205a972ef294d6906edeb10a61/xmlnote/4370C8B6799946C09B38EF2B846AD0E5/8398)
 
-#### 实现原理
-使用`contenteditable="true"`属性使div元素实现可编辑。由于`input`元素和`textarea`元素对html标签的显示不太友好，所以不使用这种方式实现。  
-
-编辑器的工具基本由原生JS操作DOM元素(heading)和`document.execCommond`(bold, italic)这一api来实现。同时配合`Selection`对象和`Range`对象来控制光标位置以及选中的操作元素。
 
 #### 参考链接
 * [【webpack】font-awesome加载不到woff字体文件](https://www.jianshu.com/p/964cdd5eb0a0)  
