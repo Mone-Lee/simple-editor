@@ -60,184 +60,6 @@ export default {
         uploader.addEventListener('change', this.uploadImage, false);
     },
     methods: {
-        handleInput(e) {
-            if (!e.target.innerHTML) {
-                e.target.innerHTML = '<p><br></p>';
-            } else {
-                this.pureContent = e.target.innerText;
-                this.$emit('input', e.target.innerHTML);
-            }
-
-            this.isPureHtml = e.target.innerHTML === '<p><br></p>';
-        },
-
-        /**
-         * 防止点击工具栏后输入框失去光标，先简单粗暴处理
-         */
-        handleBlur() {
-            // e.target.focus();
-        },
-
-        /**
-         * 处理回车换行的输入，规范行尾回车后默认生成 <p><br></p> 元素
-         */
-        handleKeyPress(e) {
-            let keyCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
-            // 回车键，处理换行生成的默认行段元素
-            // 在处理过的内容后键入回车键，生成的下一行的新元素是div，为了统一化，替换为默认的p元素
-            if (keyCode === 13) {
-                let selection = window.getSelection();
-                let range = selection.getRangeAt(0);
-
-                // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentNode
-                // 如果是在有序列表（无序列表）的通过回车结束列表的情况下，range.endContainer选中的则是li元素
-                let currentElement = range.endContainer.parentNode;
-                setTimeout(() => {
-                    let nextEle = currentElement.nextElementSibling;
-
-                    if (nextEle && nextEle.nodeName.toLowerCase() === 'div') {
-                        nextEle.innerHTML = '<br>';
-                        this.replaceNode(nextEle, 'p');
-                    }
-
-                    // 对表格元素换行特殊处理
-                    // 在表格元素末尾键入回车键，会在<table></table>元素后面添加一个<br>元素，导致光标定位错误，换行后键入的内容样式出错。
-                    if (range.endContainer.nodeName.toLowerCase() === 'div' && range.endContainer.className === 'simditor-table') {
-                        range.endContainer.removeChild(range.endContainer.lastChild);
-                        this.focusOnElement(range.endContainer.nextSibling);
-                    }
-
-                    this.handleFocus();
-                }, 10);
-            }
-        },
-
-        /**
-         * 编辑器内容被focus时的处理，判断当前focus元素使用了的工具类型，控制工具栏样式
-         */
-        handleFocus(e) {
-            // 如果选中的是链接节点，则弹出链接设置弹框
-            if (e && e.target.nodeName.toLowerCase() === 'a') {
-                let ele = e.target;
-                this.editLinkElement = e.target;
-                this.showLinkPopover(ele.offsetLeft, ele.offsetTop + ele.offsetHeight, ele.innerHTML, ele.getAttribute('href'));
-            }
-
-            let selection = window.getSelection();
-            let activeArr = []; // 记录当前选中内容的样式，处理工具栏的active状态
-            if (selection.rangeCount) {
-                let ele = selection.anchorNode;
-                // 当前聚焦元素为元素节点的文本内容： ele为文本元素, ele.nodeType == 3
-                // 当前聚焦元素为节点元素，需要循环判断到class="simeditor-content"元素终止
-                while (ele && (ele.nodeType === 3 || (ele.nodeType === 1 && ele.nodeName.toLowerCase() !== 'div'))) {
-                    let nodeName = '';
-                    if (ele.nodeType === 3) {
-                        nodeName = ele.parentNode.nodeName.toLowerCase();
-                    } else {
-                        nodeName = ele.nodeName.toLowerCase();
-                    }
-                    activeArr.push(nodeName);
-                    ele = ele.parentNode;
-                }
-            }
-            this.$emit('handleFocus', activeArr);
-        },
-
-        /**
-         * 简单比较两个DOM元素是否相等
-         * ele1: 比较元素
-         * ele2: 比较元素
-         * onlyChild: 是否该元素只有一个子元素， 如果只有一个子元素，则简单对比两个元素的文本元素是否相等
-         */
-        checkTextElementEqual(ele1, ele2, onlyChild=false) {
-            let isEqual = true;
-            // 判断不等条件： wholeText不相等；previousSibling元素不相等；nextSibling元素不相等
-            // 在当前项目中，这里进行比较的元素都是文本元素，所以使用wholeText获取元素内容
-            if (onlyChild) {
-                // 使用wholeText而不是textContent是因为在对一个元素进行加粗、斜体操作并复原后，该元素的文本元素会被双引号分为多个
-                // 例：
-                // <p>
-                //    "dmskmk"
-                //    "smd"
-                //    "kasmdka"
-                //</p>
-                // 使用textContent只能获取其中一个文本元素内容，此时需要使用wholeText
-                if (ele1.wholeText !== ele2.wholeText) {
-                    isEqual = false;
-                }
-            } else {
-                if (!onlyChild && ele1.wholeText !== ele2.wholeText || (ele1.previousSibling && !ele2.previousSibling) || (!ele1.previousSibling && ele2.previousSibling) || (ele1.previousSibling && ele2.previousSibling && ele1.previousSibling.innerText !== ele1.previousSibling.innerText) || (ele1.nextSibling && !ele2.nextSibling) || (!ele1.nextSibling && ele2.nextSibling) || (ele1.nextSibling && ele2.nextSibling && ele1.nextSibling.innerText !== ele1.nextSibling.innerText)) {
-                    isEqual = false;
-                }
-            }
-            return isEqual;
-        },
-
-        /**
-         * 在进行元素标签替换后，在当前元素的子元素中查找，恢复获得焦点的元素
-         * 
-         * originalNode: 当前替换标签元素
-         * targetNode: 替换标签前元素中获得焦点的子元素
-         */
-        findFocusElement(originalNode, targetNode) {
-            let nodeList = originalNode.childNodes;
-            if (nodeList.length === 0) {
-                return originalNode;
-            } else if (nodeList.length === 1) {
-                if (this.checkTextElementEqual(nodeList[0], targetNode, true)) {
-                    return nodeList[0];
-                }
-            } else {
-                for (let i=0; i<nodeList.length; i++) {
-                    let node = nodeList[i];
-                    if (node.childNodes.length === 0) {
-                        if (this.checkTextElementEqual(node, targetNode)) {
-                            return node;
-                        }
-                    } else {
-                        let target = this.findFocusElement(node, targetNode);
-                        if (target) {
-                            return target;
-                        }
-                    }
-                }
-            }
-            return null;
-        },
-
-        /**
-         * 使用新节点替换旧节点
-         * 
-         * oldElement: element元素，当前选中的想要被替换的元素
-         * newNodeName: String，新元素的节点名
-         * targetNode: oldEle中光标定位的子元素，用于比照，恢复光标在新元素中的确切位置  例如<p>AA<b>BB</b>CC</p>, 加入光标定位在BB文本元素中，则此时targetNode为<b>BB</b>，而oldElement为<p>AA<b>BB</b>CC</p>
-         * offset: 光标在当前元素的选中区域的结束位置
-         */
-        replaceNode(oldElement, newNodeName, targetNode, offset=0) {
-            let newEle = document.createElement(newNodeName);
-            newEle.innerHTML = oldElement.innerHTML;
-            oldElement.parentNode.insertBefore(newEle, oldElement);
-            oldElement.remove();
-
-            let target = null;
-            if (targetNode) {
-                target = this.findFocusElement(newEle, targetNode);
-
-                if (!target) {
-                    console.log('找不到光标位置');
-                    return;
-                }
-
-                // 将光标定位到新节点上
-                let editor = document.getElementById('simeditor');
-                editor.focus();
-                // 将光标定位到新节点上
-                this.focusOnElement(target, offset);
-                this.handleFocus();
-                this.updateContent();
-            }
-        },
-
         /**
          * 处理工具栏操作命令，分发操作
          */
@@ -559,6 +381,184 @@ export default {
 
             this.isPureHtml = false;
             this.updateContent();
+        },
+
+        handleInput(e) {
+            if (!e.target.innerHTML) {
+                e.target.innerHTML = '<p><br></p>';
+            } else {
+                this.pureContent = e.target.innerText;
+                this.$emit('input', e.target.innerHTML);
+            }
+
+            this.isPureHtml = e.target.innerHTML === '<p><br></p>';
+        },
+
+        /**
+         * 防止点击工具栏后输入框失去光标，先简单粗暴处理
+         */
+        handleBlur() {
+            // e.target.focus();
+        },
+
+        /**
+         * 处理回车换行的输入，规范行尾回车后默认生成 <p><br></p> 元素
+         */
+        handleKeyPress(e) {
+            let keyCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
+            // 回车键，处理换行生成的默认行段元素
+            // 在处理过的内容后键入回车键，生成的下一行的新元素是div，为了统一化，替换为默认的p元素
+            if (keyCode === 13) {
+                let selection = window.getSelection();
+                let range = selection.getRangeAt(0);
+
+                // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentNode
+                // 如果是在有序列表（无序列表）的通过回车结束列表的情况下，range.endContainer选中的则是li元素
+                let currentElement = range.endContainer.parentNode;
+                setTimeout(() => {
+                    let nextEle = currentElement.nextElementSibling;
+
+                    if (nextEle && nextEle.nodeName.toLowerCase() === 'div') {
+                        nextEle.innerHTML = '<br>';
+                        this.replaceNode(nextEle, 'p');
+                    }
+
+                    // 对表格元素换行特殊处理
+                    // 在表格元素末尾键入回车键，会在<table></table>元素后面添加一个<br>元素，导致光标定位错误，换行后键入的内容样式出错。
+                    if (range.endContainer.nodeName.toLowerCase() === 'div' && range.endContainer.className === 'simditor-table') {
+                        range.endContainer.removeChild(range.endContainer.lastChild);
+                        this.focusOnElement(range.endContainer.nextSibling);
+                    }
+
+                    this.handleFocus();
+                }, 10);
+            }
+        },
+
+        /**
+         * 编辑器内容被focus时的处理，判断当前focus元素使用了的工具类型，控制工具栏样式
+         */
+        handleFocus(e) {
+            // 如果选中的是链接节点，则弹出链接设置弹框
+            if (e && e.target.nodeName.toLowerCase() === 'a') {
+                let ele = e.target;
+                this.editLinkElement = e.target;
+                this.showLinkPopover(ele.offsetLeft, ele.offsetTop + ele.offsetHeight, ele.innerHTML, ele.getAttribute('href'));
+            }
+
+            let selection = window.getSelection();
+            let activeArr = []; // 记录当前选中内容的样式，处理工具栏的active状态
+            if (selection.rangeCount) {
+                let ele = selection.anchorNode;
+                // 当前聚焦元素为元素节点的文本内容： ele为文本元素, ele.nodeType == 3
+                // 当前聚焦元素为节点元素，需要循环判断到class="simeditor-content"元素终止
+                while (ele && (ele.nodeType === 3 || (ele.nodeType === 1 && ele.nodeName.toLowerCase() !== 'div'))) {
+                    let nodeName = '';
+                    if (ele.nodeType === 3) {
+                        nodeName = ele.parentNode.nodeName.toLowerCase();
+                    } else {
+                        nodeName = ele.nodeName.toLowerCase();
+                    }
+                    activeArr.push(nodeName);
+                    ele = ele.parentNode;
+                }
+            }
+            this.$emit('handleFocus', activeArr);
+        },
+
+        /**
+         * 简单比较两个DOM元素是否相等
+         * ele1: 比较元素
+         * ele2: 比较元素
+         * onlyChild: 是否该元素只有一个子元素， 如果只有一个子元素，则简单对比两个元素的文本元素是否相等
+         */
+        checkTextElementEqual(ele1, ele2, onlyChild=false) {
+            let isEqual = true;
+            // 判断不等条件： wholeText不相等；previousSibling元素不相等；nextSibling元素不相等
+            // 在当前项目中，这里进行比较的元素都是文本元素，所以使用wholeText获取元素内容
+            if (onlyChild) {
+                // 使用wholeText而不是textContent是因为在对一个元素进行加粗、斜体操作并复原后，该元素的文本元素会被双引号分为多个
+                // 例：
+                // <p>
+                //    "dmskmk"
+                //    "smd"
+                //    "kasmdka"
+                //</p>
+                // 使用textContent只能获取其中一个文本元素内容，此时需要使用wholeText
+                if (ele1.wholeText !== ele2.wholeText) {
+                    isEqual = false;
+                }
+            } else {
+                if (!onlyChild && ele1.wholeText !== ele2.wholeText || (ele1.previousSibling && !ele2.previousSibling) || (!ele1.previousSibling && ele2.previousSibling) || (ele1.previousSibling && ele2.previousSibling && ele1.previousSibling.innerText !== ele1.previousSibling.innerText) || (ele1.nextSibling && !ele2.nextSibling) || (!ele1.nextSibling && ele2.nextSibling) || (ele1.nextSibling && ele2.nextSibling && ele1.nextSibling.innerText !== ele1.nextSibling.innerText)) {
+                    isEqual = false;
+                }
+            }
+            return isEqual;
+        },
+
+        /**
+         * 在进行元素标签替换后，在当前元素的子元素中查找，恢复获得焦点的元素
+         * 
+         * originalNode: 当前替换标签元素
+         * targetNode: 替换标签前元素中获得焦点的子元素
+         */
+        findFocusElement(originalNode, targetNode) {
+            let nodeList = originalNode.childNodes;
+            if (nodeList.length === 0) {
+                return originalNode;
+            } else if (nodeList.length === 1) {
+                if (this.checkTextElementEqual(nodeList[0], targetNode, true)) {
+                    return nodeList[0];
+                }
+            } else {
+                for (let i=0; i<nodeList.length; i++) {
+                    let node = nodeList[i];
+                    if (node.childNodes.length === 0) {
+                        if (this.checkTextElementEqual(node, targetNode)) {
+                            return node;
+                        }
+                    } else {
+                        let target = this.findFocusElement(node, targetNode);
+                        if (target) {
+                            return target;
+                        }
+                    }
+                }
+            }
+            return null;
+        },
+
+        /**
+         * 使用新节点替换旧节点
+         * 
+         * oldElement: element元素，当前选中的想要被替换的元素
+         * newNodeName: String，新元素的节点名
+         * targetNode: oldEle中光标定位的子元素，用于比照，恢复光标在新元素中的确切位置  例如<p>AA<b>BB</b>CC</p>, 加入光标定位在BB文本元素中，则此时targetNode为<b>BB</b>，而oldElement为<p>AA<b>BB</b>CC</p>
+         * offset: 光标在当前元素的选中区域的结束位置
+         */
+        replaceNode(oldElement, newNodeName, targetNode, offset=0) {
+            let newEle = document.createElement(newNodeName);
+            newEle.innerHTML = oldElement.innerHTML;
+            oldElement.parentNode.insertBefore(newEle, oldElement);
+            oldElement.remove();
+
+            let target = null;
+            if (targetNode) {
+                target = this.findFocusElement(newEle, targetNode);
+
+                if (!target) {
+                    console.log('找不到光标位置');
+                    return;
+                }
+
+                // 将光标定位到新节点上
+                let editor = document.getElementById('simeditor');
+                editor.focus();
+                // 将光标定位到新节点上
+                this.focusOnElement(target, offset);
+                this.handleFocus();
+                this.updateContent();
+            }
         },
 
         /**
