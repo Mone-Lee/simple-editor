@@ -1,6 +1,6 @@
 <template>
     <div class="simeditor-wrap">
-        <div class="simeditor-body">
+        <div class="simeditor-body" id="simeditor-body">
             <div class="simeditor-placeholder" v-if="isPureHtml">添加内容</div>
             <!-- 使用contenteditable属性实现文本框效果 -->
             <div id="simeditor"

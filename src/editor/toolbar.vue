@@ -146,6 +146,15 @@ export default {
                 row: 0,
                 col: 0
             };
+        },
+
+        hideTableMenu() {
+            this.tools[8].isActive = false;
+            this.tools[8].isClick = false;
+            this.tablePoint = {
+                row: 0,
+                col: 0
+            };
         }
     },
     watch: {

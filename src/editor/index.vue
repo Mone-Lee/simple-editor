@@ -33,11 +33,18 @@ export default {
             this.activeList = e;
         },
 
+        // 判断是否点击了表格设置弹框以外的内容，如果是，则隐藏表格设置弹框，然后判断是否点击的是编辑区域，如果是，则判断点击内容，恢复工具栏激活状态
         handleClick(e) {
             let toolbarTable = document.getElementById('toolbar-table');
             if (!this.hasChild(toolbarTable, e.target)) {
-                this.$refs.toolbar.tools[8].isActive = false;
-                this.$refs.toolbar.tools[8].isClick = false;
+                if (this.$refs.toolbar.tools[8].isClick) {
+                    this.$refs.toolbar.hideTableMenu();
+
+                    let simeditorBody = document.getElementById('simeditor-body');
+                    if (this.hasChild(simeditorBody, e.target)) {
+                        this.$refs.editor.handleFocus();
+                    }
+                }
             }
         },
 
