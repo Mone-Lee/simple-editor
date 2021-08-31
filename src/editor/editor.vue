@@ -88,6 +88,7 @@ export default {
             if (keyCode === 13) {
                 let selection = window.getSelection();
                 let range = selection.getRangeAt(0);
+
                 // 选中的其实是文本元素，例：<p>hello</p>中的hello, 如果要针对整个节点进行操作，就需要找到parentNode
                 // 如果是在有序列表（无序列表）的通过回车结束列表的情况下，range.endContainer选中的则是li元素
                 let currentElement = range.endContainer.parentNode;
@@ -97,6 +98,13 @@ export default {
                     if (nextEle && nextEle.nodeName.toLowerCase() === 'div') {
                         nextEle.innerHTML = '<br>';
                         this.replaceNode(nextEle, 'p');
+                    }
+
+                    // 对表格元素换行特殊处理
+                    // 在表格元素末尾键入回车键，会在<table></table>元素后面添加一个<br>元素，导致光标定位错误，换行后键入的内容样式出错。
+                    if (range.endContainer.nodeName.toLowerCase() === 'div' && range.endContainer.className === 'simditor-table') {
+                        range.endContainer.removeChild(range.endContainer.lastChild);
+                        this.focusOnElement(range.endContainer.nextSibling);
                     }
 
                     this.handleFocus();
@@ -495,6 +503,11 @@ export default {
         addTableEle(tablePoint) {
             let { row, col } = tablePoint;
 
+            // 因为在表格元素末尾键入回车键后，会在<table></table>元素后自动生成<br>元素，导致光标定位错误，输入内容样式失效，
+            // 这里使用一个含有特殊类名的div进行包裹，使得在处理回车键时能更容易定位元素（否则就会直接定位在id="simeditor"元素），进行特殊处理操作
+            let wrapper = document.createElement('div');
+            wrapper.className = 'simditor-table';
+
             let table = document.createElement('table');
             let data = new Array();
             data.push('<table border="1"><thead><tr>');
@@ -513,6 +526,7 @@ export default {
 
             data.push('</tbody></table>');
             table.innerHTML = data.join('');
+            wrapper.appendChild(table);
 
             if (!window.getSelection().rangeCount) {
                 this.focusOnEnd();
@@ -530,7 +544,12 @@ export default {
                 }
             }
 
-            this.insertNodeAfter(table, currentElement);
+            this.insertNodeAfter(wrapper, currentElement);
+
+            let newEle = document.createElement('p');
+            let brEle = document.createElement('br');
+            newEle.appendChild(brEle);
+            this.insertNodeAfter(newEle, wrapper);
 
             // 将光标定位到新节点上
             let editor = document.getElementById('simeditor');
