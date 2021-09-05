@@ -22,7 +22,7 @@
             :style="{left: linkPopoverInfo.x + 'px', top: linkPopoverInfo.y + 'px'}">
             <header class="popover-header">
                 <h3 class="popover-title">添加链接</h3>
-                <div class="iconfont icon-close" @click="isShowLinkPopover=false"></div>
+                <div class="iconfont icon-close" @click="hideLinkPopover"></div>
             </header>
             <div class="popover-content">
                 <div class="item">
@@ -171,7 +171,7 @@ export default {
             let link = document.createElement('a');
             link.innerHTML = '链接文字';
             link.target = '_blank';
-            link.className = 'selected';
+            // link.className = 'selected';
             link.href = '';
 
             let selection = window.getSelection();
@@ -443,6 +443,7 @@ export default {
             if (e && e.target.nodeName.toLowerCase() === 'a') {
                 let ele = e.target;
                 this.editLinkElement = e.target;
+                this.editLinkElement.className = 'selected';
                 this.showLinkPopover(ele.offsetLeft, ele.offsetTop + ele.offsetHeight, ele.innerHTML, ele.getAttribute('href'));
             }
 
@@ -607,8 +608,14 @@ export default {
 
             this.editLinkElement.innerHTML = this.linkPopoverInfo.text;
             this.editLinkElement.href = this.linkPopoverInfo.url;
+            this.editLinkElement.className = '';
             this.isShowLinkPopover = false;
             this.updateContent();
+        },
+
+        hideLinkPopover() {
+            this.editLinkElement.className = '';
+            this.isShowLinkPopover = false;
         },
 
         insertNodeAfter(newNode, targetNode) {
