@@ -405,6 +405,10 @@ export default {
          * 处理回车换行的输入，规范行尾回车后默认生成 <p><br></p> 元素
          */
         handleKeyPress(e) {
+            if (this.isShowLinkPopover) {
+                this.hideLinkPopover();
+            }
+
             let keyCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
             // 回车键，处理换行生成的默认行段元素
             // 在处理过的内容后键入回车键，生成的下一行的新元素是div，为了统一化，替换为默认的p元素
@@ -505,9 +509,10 @@ export default {
          */
         findFocusElement(originalNode, targetNode) {
             let nodeList = originalNode.childNodes;
+
             if (nodeList.length === 0) {
                 return originalNode;
-            } else if (nodeList.length === 1) {
+            } else if (nodeList.length === 1 && nodeList[0].nodeType === 3) {       // 添加元素类型判断，以防<b><i>abc</i></b>这种情况下，在b元素时进入这一步判断，导致出错
                 if (this.checkTextElementEqual(nodeList[0], targetNode, true)) {
                     return nodeList[0];
                 }
